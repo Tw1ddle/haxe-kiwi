@@ -1,6 +1,7 @@
 package kiwi.frontend;
 
 import haxe.ds.GenericStack;
+import kiwi.Constraint;
 import kiwi.Constraint.RelationalOperator;
 import kiwi.Expression;
 import kiwi.Strength;

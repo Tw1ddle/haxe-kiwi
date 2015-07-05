@@ -1,0 +1,11 @@
+{
+	"name": "haxe-kiwi",
+	"url" : "",
+	"license": "",
+	"tags": ["cross", "haxe", "openfl", "utility", "ui"],
+	"description": "Haxe port of Kiwi, a fast implementation of the Cassowary constraint solving algorithm.",
+	"version": "1.0.0",
+	"releasenote": "Initial release",
+	"contributors": ["samcodes"],
+	"dependencies": ["sure": ""]
+}

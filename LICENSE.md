@@ -32,6 +32,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Acknowledgement
 ----------
-haxe-kiwi is a partial port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of
+haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of
 the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here:
 http://github.com/nucleic.

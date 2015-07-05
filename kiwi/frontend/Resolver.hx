@@ -4,7 +4,7 @@ import kiwi.Expression;
 import kiwi.Variable;
 
 class Resolver implements IResolver {
-	private var variables:Map<String, Variable>;
+	public var variables(get, null):Map<String, Variable>;
 	
 	public function new() {
 		variables = new Map<String, Variable>();
@@ -31,7 +31,7 @@ class Resolver implements IResolver {
 		var constant:Float = Std.parseFloat(expression);
 		
 		if (Math.isNaN(constant)) {
-			throw "Failed to parse constant expression: " + expression;
+			//throw "Failed to parse constant expression: " + expression;
 			return null;
 		}
 		
@@ -42,5 +42,9 @@ class Resolver implements IResolver {
 		for (variable in variables) {
 			trace(variable.name + ": " + variable.value);
 		}
+	}
+	
+	public function get_variables():Map<String, Variable> {
+		return variables;
 	}
 }

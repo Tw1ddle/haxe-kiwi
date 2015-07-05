@@ -1,7 +1,6 @@
 package kiwi;
 
 import kiwi.Constraint.RelationalOperator;
-import kiwi.Solver.SolverError;
 import kiwi.Symbol.SymbolType;
 
 class Solver {
