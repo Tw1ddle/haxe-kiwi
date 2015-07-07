@@ -43,7 +43,7 @@ class ConstraintParser {
 			} else if (expression == "-") {
 				var a = expressionStack.pop();
 				var b = expressionStack.pop();
-				expressionStack.add(ExpressionSymbolics.subtractExpression(a, b));
+				expressionStack.add(ExpressionSymbolics.subtractExpression(b, a));
 			} else if (expression == "/") {
 				var denominator = expressionStack.pop();
 				var numerator = expressionStack.pop();
