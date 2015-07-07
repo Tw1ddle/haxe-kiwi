@@ -44,7 +44,7 @@ class Resolver implements IResolver {
 		}
 	}
 	
-	public function get_variables():Map<String, Variable> {
+	private function get_variables():Map<String, Variable> {
 		return variables;
 	}
 }
