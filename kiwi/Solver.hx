@@ -5,6 +5,8 @@ import kiwi.Symbol.SymbolType;
 
 class Solver {
 	// TODO Haxe maps don't have key,value pair iteration, which makes this implementation less 1:1 and probably way more inefficient - what do?
+	// TODO Need to check how Haxe maps work and compare performance of handmade associative vector type
+	
 	private static inline var fMax:Float = 1e20;
 	
 	private var constraints:ConstraintMap;
