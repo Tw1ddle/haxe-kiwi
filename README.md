@@ -6,21 +6,26 @@ haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi), a fast implement
 
 Supports:
 * Solving systems of linear equalities and inequalities.
-* Rudimentary algebra parsing to simplify creation of constraints.
+* Rudimentary algebra parsing for creation of constraints.
 
 Doesn't support:
 * Stay constraints.
 
 ## Usage
 
-For an example using a system of equalities with edit variables see the demo: https://github.com/Tw1ddle/haxe-kiwi-demo
+haxe-kiwi depends on assertion library Sure, install that first:
+```xml
+haxelib install Sure
+```
 	
-![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/equalities_demo.png?raw=true "Demo")
-
 Include the library through Project.xml
 ```xml
 <include path="lib/haxe-kiwi/include.xml" />
 ```
+
+For an example see the demo repo: https://github.com/Tw1ddle/haxe-kiwi-demo
+	
+![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/equalities_demo.png?raw=true "Demo")
 
 ```haxe
 // Basic usage
@@ -28,12 +33,12 @@ var solver = new Solver();
 var problem:String = '{"inequalities":["x == 20", "x == y + 10", "z == y + 30", "q == z + x", "foo == z + x", "bar == foo + x", "baz == foo * 10", "boz == x / 10 + y / 10 + x * 5"]}';
 var structure:{inequalities:Array<String>} = Json.parse(problem);
 
-var resolver:Resolver = new Resolver(); // Caches variables so that duplicates aren't added to the solver
+var resolver:Resolver = new Resolver(); // Simple map wrapper that caches variables so that duplicates aren't added to the solver
 for (inequality in structure.inequalities) {
 	var constraint = ConstraintParser.parseConstraint(inequality, resolver); // Constraints have "required" strength by default
 	solver.addConstraint(constraint);
 }
-solver.updateVariables(); // Attempt to solve the system
+solver.updateVariables(); // Attempt to satisfy the constraints
 
 // Trace the value of variable x (expect x = 20)
 var x = resolver.resolveVariable("x");
@@ -47,4 +52,9 @@ resolver = new Resolver();
 ```
 
 ## Notes
-All targets are supported. Some work to make performance match the original implementation is still needed.
+All Haxe targets are supported. More work to make performance match the original implementation is still needed.
+
+## Acknowledgement
+haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of
+the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here:
+http://github.com/nucleic.
