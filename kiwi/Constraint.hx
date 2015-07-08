@@ -7,9 +7,9 @@ package kiwi;
 }
 
 class Constraint {
-	public var expression(get, null):Expression;
-	public var operator(get, null):RelationalOperator;
-	public var strength(get, null):Float;
+	public var expression(default, null):Expression;
+	public var operator(default, null):RelationalOperator;
+	public var strength(default, null):Float;
 	
 	public inline function new(expression:Expression, operator:RelationalOperator, ?strength:Null<Float>) {
 		Sure.sure(expression != null && operator != null);
@@ -21,18 +21,6 @@ class Constraint {
 		this.expression = reduce(expression);
 		this.operator = operator;
 		this.strength = Strength.clip(strength);
-	}
-	
-	private function get_expression():Expression {
-		return expression;
-	}
-	
-	private function get_operator():RelationalOperator {
-		return operator;
-	}
-	
-	private function get_strength():Float {
-		return strength;
 	}
 	
 	private static function reduce(expr:Expression):Expression {

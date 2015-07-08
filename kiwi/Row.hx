@@ -3,8 +3,8 @@ package kiwi;
 typedef CellMap = Map<Symbol, Float>;
 
 class Row {
-	public var cells(get, null):CellMap;
-	public var constant(get, null):Float;
+	public var cells(default, null):CellMap;
+	public var constant(default, null):Float;
 	
 	public inline function new(constant:Float = 0.0) {
 		this.cells = new CellMap();
@@ -21,7 +21,7 @@ class Row {
 		return row;
 	}
 	
-	public function add(value:Float):Float {
+	public inline function add(value:Float):Float {
 		constant += value;
 		return constant;
 	}
@@ -52,7 +52,7 @@ class Row {
 		}
 	}
 	
-	public function remove(symbol:Symbol):Void {
+	public inline function remove(symbol:Symbol):Void {
 		cells.remove(symbol);
 	}
 	
@@ -82,7 +82,7 @@ class Row {
 		this.cells = newCells;
 	}
 	
-	public function solveForSymbols(lhs:Symbol, rhs:Symbol):Void {
+	public inline function solveForSymbols(lhs:Symbol, rhs:Symbol):Void {
 		Sure.sure(lhs != null && rhs != null);
 		
 		insertSymbol(lhs, -1.0);
@@ -109,13 +109,5 @@ class Row {
 			cells.remove(symbol);
 			insertRow(row, coefficient);
 		}
-	}
-	
-	private function get_cells():CellMap {
-		return cells;
-	}
-	
-	private function get_constant():Float {
-		return constant;
 	}
 }

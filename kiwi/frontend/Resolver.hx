@@ -4,7 +4,7 @@ import kiwi.Expression;
 import kiwi.Variable;
 
 class Resolver implements IResolver {
-	public var variables(get, null):Map<String, Variable>;
+	public var variables(default, null):Map<String, Variable>;
 	
 	public function new() {
 		variables = new Map<String, Variable>();
@@ -42,9 +42,5 @@ class Resolver implements IResolver {
 		for (variable in variables) {
 			trace(variable.name + ": " + variable.value);
 		}
-	}
-	
-	private function get_variables():Map<String, Variable> {
-		return variables;
 	}
 }

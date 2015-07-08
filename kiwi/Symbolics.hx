@@ -2,6 +2,8 @@ package kiwi;
 
 import kiwi.Constraint.RelationalOperator;
 
+// TODO look at @:op and @:commutative, can they be used for this kind of thing
+// TODO can abstracts be used to implement this, a bit like this?
 /*
 abstract AExpression(Expression) to Expression from Expression {
 	public function new(?terms:Array<Term>, constant:Float = 0.0) {
@@ -12,9 +14,6 @@ abstract AExpression(Expression) to Expression from Expression {
 }
 */
 
-// TODO add null assertions
-
-// TODO look at @:op and @:commutative, can they be used for this kind of thing
 class VariableSymbolics {
 	inline public static function multiplyByFloat(variable:Variable, coefficient:Float):Term {
 		return new Term(variable, coefficient);

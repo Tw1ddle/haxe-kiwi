@@ -104,7 +104,7 @@ class ConstraintParser {
 		return strength;
 	}
 	
-	private static function tokenizeExpression(expressionString:String):Array<String> {
+	private static function tokenizeExpression(expressionString:String):Array<String> {		
 		var tokens = new Array<String>();
 		var builder:String = "";
 		var i = 0;

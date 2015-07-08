@@ -5,10 +5,7 @@ import kiwi.Symbol.SymbolType;
 
 class Solver {
 	// TODO Haxe maps don't have key,value pair iteration, which makes this implementation less 1:1 and probably way more inefficient - what do?
-	// TODO Need to check how Haxe maps work and compare performance of handmade associative vector type
-	
-	private static inline var fMax:Float = 1e20;
-	
+	// TODO Need to check how Haxe maps work and compare performance of handmade associative vector type	
 	private var constraints:ConstraintMap;
 	private var rows:RowMap;
 	private var vars:VarMap;
@@ -411,7 +408,7 @@ class Solver {
 		Sure.sure(row != null);
 		
 		var entering = new Symbol();
-		var ratio:Float = fMax;
+		var ratio:Float = Util.floatMax;
 		for (key in row.cells.keys()) {
 			if (key.type != SymbolType.Dummy) {
 				var current_cell:Float = row.cells.get(key);
@@ -443,7 +440,7 @@ class Solver {
 	private function getLeavingRow(entering:Symbol):Row {
 		Sure.sure(entering != null);
 		
-		var ratio:Float = fMax;
+		var ratio:Float = Util.floatMax;
 		
 		var row:Row = null;
 		for (key in rows.keys()) {
@@ -466,7 +463,7 @@ class Solver {
 	private function getMarkerLeavingRow(marker:Symbol):Row {
 		Sure.sure(marker != null);
 		
-		var fmax:Float = fMax;
+		var fmax:Float = Util.floatMax;
 		var r1:Float = fmax;
 		var r2:Float = fmax;
 		

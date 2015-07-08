@@ -9,8 +9,8 @@ enum SymbolType {
 }
 
 class Symbol {
-	public var type(get, null):SymbolType;
-	public var id(get, null):Int;
+	public var type(default, null):SymbolType;
+	public var id(default, null):Int;
 	
 	public inline function new(?type:SymbolType, id:Int = 0) {
 		if (type == null) {
@@ -18,13 +18,5 @@ class Symbol {
 		}
 		this.type = type;
 		this.id = id;
-	}
-	
-	private function get_type():SymbolType {
-		return type;
-	}
-	
-	private function get_id():Int {
-		return id;
 	}
 }
