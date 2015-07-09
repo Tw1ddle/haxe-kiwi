@@ -1,7 +1,7 @@
 # haxe-kiwi
 
 haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi), a fast implementation of the Cassowary constraint solving algorithm.
-	
+
 ## Features
 
 Supports:
@@ -15,7 +15,7 @@ Doesn't support:
 
 haxe-kiwi depends on assertion library Sure, install that first:
 ```xml
-haxelib install Sure
+haxelib install sure
 ```
 	
 Include the library through Project.xml
