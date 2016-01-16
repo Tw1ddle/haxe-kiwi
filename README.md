@@ -1,12 +1,12 @@
 # haxe-kiwi
 
-haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi), a fast implementation of the Cassowary constraint solving algorithm.
+haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software) constraint solving algorithm.
 
 ## Features
 
 Supports:
 * Solving systems of linear equalities and inequalities.
-* Rudimentary algebra parsing for creation of constraints.
+* Rudimentary JSON parsing for creation of constraints.
 
 Doesn't support:
 * Stay constraints.
@@ -17,14 +17,14 @@ haxe-kiwi depends on assertion library Sure, install that first:
 ```xml
 haxelib install sure
 ```
-	
-Include the library through Project.xml
+
+Include the library through Project.xml:
 ```xml
 <include path="lib/haxe-kiwi/include.xml" />
 ```
 
 For an example see the demo repo: https://github.com/Tw1ddle/haxe-kiwi-demo
-	
+
 ![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/equalities_demo.png?raw=true "Demo")
 
 ```haxe
@@ -52,9 +52,11 @@ resolver = new Resolver();
 ```
 
 ## Notes
-All Haxe targets are supported. More work to make performance match the original implementation is still needed.
+* All Haxe targets are supported.
+* A unit test suite and tests to gauge performance across targets are still needed.
 
 ## Acknowledgement
-haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of
+* haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of
 the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here:
 http://github.com/nucleic.
+* The string parsing code for constraints was ported from [kiwi-java](https://github.com/alexbirkett/kiwi-java) by Alex Birkett, a Java port of the C++ solver by Chris Colbert.

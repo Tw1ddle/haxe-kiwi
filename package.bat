@@ -1,0 +1,1 @@
+zip -0r haxe-kiwi.zip kiwi haxelib.json include.xml README.md CHANGELOG.md LICENSE

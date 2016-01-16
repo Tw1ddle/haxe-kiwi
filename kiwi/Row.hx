@@ -31,7 +31,7 @@ class Row {
 		
 		var existingCoefficient:Null<Float> = cells.get(symbol);
 		if (existingCoefficient != null) {
-			coefficient = existingCoefficient; // TODO = or += ... kiwi-java is = ?? POTENTIAL BUG
+			coefficient += existingCoefficient;
 		}
 		
 		if (Util.nearZero(coefficient)) {
