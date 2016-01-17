@@ -20,7 +20,7 @@ class Constraint {
 		
 		this.expression = reduce(expression);
 		this.operator = operator;
-		this.strength = Strength.clip(strength);
+		this.strength = Strength.clamp(strength);
 	}
 	
 	private static function reduce(expr:Expression):Expression {

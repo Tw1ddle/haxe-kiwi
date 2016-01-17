@@ -110,7 +110,7 @@ class Solver {
 			throw SolverError.DuplicateEditVariable;
 		}
 		
-		strength = Strength.clip(strength);
+		strength = Strength.clamp(strength);
 		
 		if (strength == Strength.required) {
 			throw SolverError.BadRequiredStrength;
@@ -546,16 +546,20 @@ class Solver {
 }
 
 private class Tag {
+	public var marker:Symbol;
+	public var other:Symbol;
+	
 	public inline function new() {
 		marker = new Symbol();
 		other = new Symbol();
 	}
-	
-	public var marker:Symbol;
-	public var other:Symbol;
 }
 
 private class EditInfo {
+	public var constraint:Constraint;
+	public var tag:Tag;
+	public var constant:Float;
+	
 	public inline function new(constraint:Constraint, tag:Tag, constant:Float) {
 		Sure.sure(constraint != null);
 		Sure.sure(tag != null);
@@ -565,10 +569,6 @@ private class EditInfo {
 		this.tag = tag;
 		this.constant = constant;
 	}
-	
-	public var constraint:Constraint;
-	public var tag:Tag;
-	public var constant:Float;
 }
 
 typedef ConstraintMap = Map<Constraint, Tag>;
