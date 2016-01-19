@@ -310,14 +310,20 @@ class Solver {
 		
 		var row:Row = rows.get(art);
 		if (row != null) {
+			var keysToRemove = new Array<Symbol>();
 			for (key in rows.keys()) {
 				if (rows.get(key) == row) {
-					rows.remove(key);
+					keysToRemove.push(key);
 				}
 			}
+			while (keysToRemove.length > 0) {
+				rows.remove(keysToRemove.pop());
+			}
+			
 			if (Lambda.count(row.cells) == 0) {
 				return success;
 			}
+			
 			var entering:Symbol = anyPivotableSymbol(row);
 			if (entering.type == SymbolType.Invalid) {
 				return false;
