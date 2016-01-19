@@ -2,14 +2,14 @@ package kiwi;
 
 import kiwi.Constraint.RelationalOperator;
 
-// TODO look at @:op and @:commutative, can they be used for this kind of thing
-// TODO can abstracts be used to implement this, a bit like this?
+// TODO: investigate whether abstracts can be used to implement this, a bit like this:
 /*
 abstract AExpression(Expression) to Expression from Expression {
 	public function new(?terms:Array<Term>, constant:Float = 0.0) {
 		this = new Expression(terms, constant);
 	}
 	
+	// TODO: review @:op and @:commutative etc, can they be used for this kind of thing
 	@:op(A + B) static public function add(lhs:AExpression, rhs:AExpression) { return 0; }
 }
 */

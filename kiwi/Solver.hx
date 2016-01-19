@@ -156,7 +156,7 @@ class Solver {
 	 * DuplicateEditVariable
 	 * 	The given edit variable has already been added to the solver.
 	 * BadRequiredStrength
-	 * The given strength is >= required.
+	 *	The given strength is >= required.
 	 */
 	public function addEditVariable(variable:Variable, strength:Float):Void {
 		Sure.sure(variable != null);
@@ -578,7 +578,7 @@ class Solver {
 	
 	/* 
 	 * Get the first Slack or Error symbol in the row.
-	 * If no such symbol is present, and Invalid symbol will be returned.
+	 * If no such symbol is present, an Invalid symbol will be returned.
 	 */
 	private function anyPivotableSymbol(row:Row):Symbol {
 		Sure.sure(row != null);
@@ -594,16 +594,16 @@ class Solver {
 	
 	/* 
 	 * Compute the row which holds the exit symbol for a pivot.
-	 * This method will return an iterator to the row in the row map which holds the exit symbol.
-	 * If no appropriate exit symbol is found, the end() iterator will be returned.
+	 * This method will return a reference to the row in the row map which holds the exit symbol.
+	 * If no appropriate exit symbol is found, null will be returned.
 	 * This indicates that the objective function is unbounded.
 	 */
 	private function getLeavingRow(entering:Symbol):Row {
 		Sure.sure(entering != null);
 		
 		var ratio:Float = Util.floatMax;
-		
 		var row:Row = null;
+		
 		for (key in rows.keys()) {
 			if (key.type != SymbolType.External) {
 				var candidateRow:Row = rows.get(key);
@@ -623,20 +623,19 @@ class Solver {
 	
 	/* 
 	 * Compute the leaving row for a marker variable.
-	 * This method will return an iterator to the row in the row map which holds the given marker variable.
+	 * This method will return a reference to the row in the row map which holds the given marker variable.
 	 * The row will be chosen according to the following precedence:
 	 * 1) The row with a restricted basic varible and a negative coefficient for the marker with the smallest ratio of -constant / coefficient.
 	 * 2) The row with a restricted basic variable and the smallest ratio of constant / coefficient.
 	 * 3) The last unrestricted row which contains the marker.
-	 * If the marker does not exist in any row, the row map end() iterator will be returned.
-	 * This indicates an internal solver error since the marker *should* exist somewhere in the tableau.
+	 * If the marker does not exist in any row, null will be returned.
+	 * This indicates an internal solver error since the marker should exist somewhere in the tableau.
 	 */
 	private function getMarkerLeavingRow(marker:Symbol):Row {
 		Sure.sure(marker != null);
 		
-		var fmax:Float = Util.floatMax;
-		var r1:Float = fmax;
-		var r2:Float = fmax;
+		var r1:Float = Util.floatMax;
+		var r2:Float = Util.floatMax;
 		
 		var first:Row = null;
 		var second:Row = null;
