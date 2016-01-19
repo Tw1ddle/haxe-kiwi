@@ -14,7 +14,7 @@ class Row {
 	// TODO do we really need to deep copy?
 	public function deepCopy():Row {
 		var row = new Row();
-		row.constant = this.constant;
+		row.constant = constant;
 		for (key in cells.keys()) {
 			row.cells.set(key, cells.get(key));
 		}
@@ -64,7 +64,7 @@ class Row {
 			var value:Float = -cells.get(key);
 			newCells.set(key, value);
 		}
-		this.cells = newCells;
+		cells = newCells;
 	}
 	
 	public function solveForSymbol(symbol:Symbol):Void {
@@ -79,7 +79,7 @@ class Row {
 			var value:Float = cells.get(key) * coefficient;
 			newCells.set(key, value);
 		}
-		this.cells = newCells;
+		cells = newCells;
 	}
 	
 	public inline function solveForSymbols(lhs:Symbol, rhs:Symbol):Void {

@@ -88,7 +88,18 @@ class Solver {
 				throw SolverError.InternalSolverError;
 			}
 			
-			var leaving:Symbol = tag.marker;
+			var leaving:Symbol = null;
+			
+			for (key in rows.keys()) {
+				if (rows.get(key) == row) {
+					leaving = key;
+				}
+			}
+			
+			if (leaving == null) {
+				throw SolverError.InternalSolverError;
+			}
+			
 			rows.remove(tag.marker);
 			row.solveForSymbols(leaving, tag.marker);
 			substitute(tag.marker, row);
@@ -291,11 +302,11 @@ class Solver {
 		
 		var art:Symbol = new Symbol(SymbolType.Slack, idTick++);
 		rows.set(art, row.deepCopy());
-		this.artificial = row.deepCopy();
+		artificial = row.deepCopy();
 		
-		optimize(this.artificial);
-		var success:Bool = Util.nearZero(this.artificial.constant);
-		this.artificial = null;
+		optimize(artificial);
+		var success:Bool = Util.nearZero(artificial.constant);
+		artificial = null;
 		
 		var row:Row = rows.get(art);
 		if (row != null) {
