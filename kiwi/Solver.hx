@@ -4,8 +4,6 @@ import kiwi.Constraint.RelationalOperator;
 import kiwi.Symbol.SymbolType;
 
 class Solver {
-	// TODO Haxe maps don't have key,value pair iteration, which makes this implementation less 1:1 and probably way more inefficient - what do?
-	// TODO Need to check how Haxe maps work and compare performance of handmade associative vector type	
 	private var constraints:ConstraintMap;
 	private var rows:RowMap;
 	private var vars:VarMap;
@@ -19,6 +17,10 @@ class Solver {
 		reset();
 	}
 	
+	/* 
+	 * Reset the solver to the empty starting condition.
+	 * This method resets the internal solver state to the empty starting condition, as if no constraints or edit variables have been added.
+	 */
 	public inline function reset():Void {
 		constraints = new ConstraintMap();
 		rows = new RowMap();
@@ -30,6 +32,14 @@ class Solver {
 		idTick = 1;
 	}
 	
+	/* Add a constraint to the solver.
+	 * Throws
+	 * ------
+	 * DuplicateConstraint
+	 * 	The given constraint has already been added to the solver.
+	 * UnsatisfiableConstraint
+	 *	The given constraint is required and cannot be satisfied.
+	 */
 	public function addConstraint(constraint:Constraint):Void {
 		Sure.sure(constraint != null);
 		
@@ -37,10 +47,17 @@ class Solver {
 			throw SolverError.DuplicateConstraint;
 		}
 		
+		// Creating a row causes symbols to reserved for the variables in the constraint.
+		// If this method exits with an exception, then its possible those variables will linger in the var map.
+		// Since it's likely that those variables will be used in other constraints and since exceptional conditions are uncommon, I'm not too worried about aggressive cleanup of the var map.
 		var tag:Tag = new Tag();
 		var row:Row = createRow(constraint, tag);
 		var subject:Symbol = chooseSubject(row, tag);
 		
+
+		// If chooseSubject could find a valid entering symbol, one last option is available if the entire row is composed of dummy variables.
+		// If the constant of the row is zero, then this represents redundant constraints and the new dummy marker can enter the basis.
+		// If the constant is non-zero, then it represents an unsatisfiable constraint.
 		if (subject.type == SymbolType.Invalid && allDummies(row)) {
 			if (!Util.nearZero(row.constant)) {
 				throw SolverError.UnsatisfiableConstraint;
@@ -49,6 +66,8 @@ class Solver {
 			}
 		}
 		
+		// If an entering symbol still isn't found, then the row must be added using an artificial variable.
+		// If that fails, then the row represents an unsatisfiable constraint.
 		if (subject.type == SymbolType.Invalid) {
 			if (!addWithArtificialVariable(row)) {
 				throw SolverError.UnsatisfiableConstraint;
@@ -61,9 +80,18 @@ class Solver {
 		
 		constraints.set(constraint, tag);
 		
+
+		// Optimizing after each constraint is added performs less aggregate work due to a smaller average system size.
+		// It also ensures the solver remains in a consistent state.
 		optimize(objective);
 	}
 	
+	/* Remove a constraint from the solver.
+	 * Throws
+	 * ------
+	 * UnknownConstraint
+	 *	The given constraint has not been added to the solver.
+	 */
 	public function removeConstraint(constraint:Constraint):Void {
 		Sure.sure(constraint != null);
 		
@@ -75,10 +103,11 @@ class Solver {
 		
 		constraints.remove(constraint);
 		
+		// Remove the error effects from the objective function before pivoting, or substitutions into the objective will lead to incorrect solver results.
 		removeConstraintEffects(constraint, tag);
 		
+		// If the marker is basic, simply drop the row. Otherwise, pivot the marker into the basis and then drop the row.
 		var row:Row = rows.get(tag.marker);
-		
 		if (row != null) {
 			rows.remove(tag.marker);
 		} else {
@@ -105,15 +134,30 @@ class Solver {
 			substitute(tag.marker, row);
 		}
 		
+		// Optimizing after each constraint is removed ensures that the solver remains consistent.
+		// It makes the solver API easier to use at a small tradeoff for speed.
 		optimize(objective);
 	}
 	
+	/* 
+	 * Test whether a constraint has been added to the solver.
+	 */
 	public inline function hasConstraint(constraint:Constraint):Bool {
 		Sure.sure(constraint != null);
 		
 		return constraints.exists(constraint);
 	}
 	
+	/*
+	 * Add an edit variable to the solver.
+	 * This method should be called before the 'suggestValue' method is used to supply a suggested value for the given edit variable.
+	 * Throws
+	 * ------
+	 * DuplicateEditVariable
+	 * 	The given edit variable has already been added to the solver.
+	 * BadRequiredStrength
+	 * The given strength is >= required.
+	 */
 	public function addEditVariable(variable:Variable, strength:Float):Void {
 		Sure.sure(variable != null);
 		
@@ -135,6 +179,12 @@ class Solver {
 		edits.set(variable, info);
 	}
 	
+	/* Remove an edit variable from the solver.
+	 * Throws
+	 * ------
+	 * UnknownEditVariable
+	 *	The given edit variable has not been added to the solver.
+	 */
 	public function removeEditVariable(variable:Variable):Void {
 		Sure.sure(variable != null);
 		
@@ -148,12 +198,23 @@ class Solver {
 		edits.remove(variable);
 	}
 	
+	/* 
+	 * Test whether an edit variable has been added to the solver.
+	 */
 	public inline function hasEditVariable(variable:Variable):Bool {
 		Sure.sure(variable != null);
 		
 		return edits.exists(variable);
 	}
 	
+	/*
+	 * Suggest a value for the given edit variable.
+	 * This method should be used after an edit variable as been added to the solver in order to suggest the value for that variable.
+	 * Throws
+	 * ------
+	 * UnknownEditVariable
+	 *	The given edit variable has not been added to the solver.	
+	 */
 	public function suggestValue(variable:Variable, value:Float):Void {
 		Sure.sure(variable != null);
 		
@@ -192,6 +253,9 @@ class Solver {
 		dualOptimize();
 	}
 	
+	/* 
+	 * Update the values of the external solver variables.
+	 */
 	public function updateVariables():Void {
 		for (key in vars.keys()) {
 			var row:Row = rows.get(vars.get(key));
@@ -204,6 +268,10 @@ class Solver {
 		}
 	}
 	
+	/* 
+	 * Get the symbol for the given variable.
+	 * If a symbol does not exist for the variable, one will be created.
+	 */
 	private function getVarSymbol(variable:Variable):Symbol {
 		Sure.sure(variable != null);
 		
@@ -217,12 +285,23 @@ class Solver {
 		return symbol;
 	}
 	
+	/* 
+	 * Create a new Row object for the given constraint.
+	 * The terms in the constraint will be converted to cells in the row.
+	 * Any term in the constraint with a coefficient of zero is ignored.
+	 * This method uses the 'getVarSymbol' method to get the symbol for the variables added to the row.
+	 * If the symbol for a given cell variable is basic, the cell variable will be substituted with the basic row.
+	 * The necessary slack and error variables will be added to the row.
+	 * If the constant for the row is negative, the sign for the row will be inverted so the constant becomes positive.
+	 * The tag will be updated with the marker and error symbols to use for tracking the movement of the constraint in the tableau.
+	 */
 	private function createRow(constraint:Constraint, tag:Tag):Row {
 		Sure.sure(constraint != null);
 		
 		var expression:Expression = constraint.expression;
 		var row:Row = new Row(expression.constant);
 		
+		// Substitute the current basic variables into the row.
 		for (term in expression.terms) {
 			if (!Util.nearZero(term.coefficient)) {
 				var symbol:Symbol = getVarSymbol(term.variable);
@@ -235,6 +314,7 @@ class Solver {
 			}
 		}
 		
+		// Add the necessary slack, error, and dummy variables.
 		switch(constraint.operator) {
 			case RelationalOperator.LE, RelationalOperator.GE: {
 				var coefficient:Float = constraint.operator == RelationalOperator.LE ? 1.0 : -1.0;
@@ -266,6 +346,7 @@ class Solver {
 			}
 		}
 		
+		// Ensure the row as a positive constant.
 		if (row.constant < 0.0) {
 			row.reverseSign();
 		}
@@ -273,6 +354,15 @@ class Solver {
 		return row;
 	}
 	
+	/* 
+	 * Choose the subject for solving for the row.
+	 * This method will choose the best subject for using as the solve target for the row.
+	 * An invalid symbol will be returned if there is no valid target.
+	 * The symbols are chosen according to the following precedence:
+	 * 1) The first symbol representing an external variable.
+	 * 2) A negative slack or error tag variable.
+	 * If a subject cannot be found, an invalid symbol will be returned.
+	 */
 	private function chooseSubject(row:Row, tag:Tag):Symbol {
 		Sure.sure(row != null && tag != null);
 		
@@ -297,17 +387,26 @@ class Solver {
 		return new Symbol();
 	}
 	
+ 	/* 
+	 * Add the row to the tableau using an artificial variable.
+	 * This will return false if the constraint cannot be satisfied.
+ 	 */
 	private function addWithArtificialVariable(row:Row):Bool {
 		Sure.sure(row != null);
 		
+		// Create and add the artificial variable to the tableau.
 		var art:Symbol = new Symbol(SymbolType.Slack, idTick++);
 		rows.set(art, row.deepCopy());
 		artificial = row.deepCopy();
 		
+		// Optimize the artificial objective.
+		// This is successful only if the artificial objective is optimized to zero.
 		optimize(artificial);
 		var success:Bool = Util.nearZero(artificial.constant);
 		artificial = null;
 		
+		// If the artificial variable is basic, pivot the row so that it becomes basic.
+		// If the row is constant, exit early.
 		var row:Row = rows.get(art);
 		if (row != null) {
 			var keysToRemove = new Array<Symbol>();
@@ -326,13 +425,14 @@ class Solver {
 			
 			var entering:Symbol = anyPivotableSymbol(row);
 			if (entering.type == SymbolType.Invalid) {
-				return false;
+				return false; // Unsatisfiable (will this ever happen?)
 			}
 			row.solveForSymbols(art, entering);
 			substitute(entering, row);
 			rows.set(entering, row);
 		}
 		
+		// Remove the artificial variable from the tableau.
 		for (row in rows) {
 			row.remove(art);
 		}
@@ -342,6 +442,10 @@ class Solver {
 		return success;
 	}
 	
+	/* 
+	 * Substitute the parametric symbol with the given row.
+	 * This method will substitute all instances of the parametric symbol in the tableau and the objective function with the given row.	
+	 */
 	private function substitute(symbol:Symbol, row:Row):Void {
 		Sure.sure(symbol != null && row != null);
 		
@@ -359,6 +463,14 @@ class Solver {
 		}
 	}
 	
+	/*
+	 * Optimize the system for the given objective function.
+	 * This method performs iterations of Phase 2 of the simplex method until the objective function reaches a minimum.
+	 * Throws
+	 * ------
+	 * InternalSolverError
+	 *	The value of the objective function is unbounded.
+	 */
 	private function optimize(objective:Row):Void {
 		Sure.sure(objective != null);
 		
@@ -392,6 +504,14 @@ class Solver {
 		}
 	}
 	
+	/* Optimize the system using the dual of the simplex method.
+	 * The current state of the system should be such that the objective function is optimal, but not feasible.
+	 * This method will perform an iteration of the dual simplex method to make the solution both optimal and feasible.
+	 * Throws
+	 * ------
+	 * InternalSolverError
+	 *	The system cannot be dual optimized.
+	 */
 	private function dualOptimize():Void {
 		while (infeasibleRows.length > 0) {
 			var leaving:Symbol = infeasibleRows.pop();
@@ -401,6 +521,8 @@ class Solver {
 				if (entering.type == SymbolType.Invalid) {
 					throw SolverError.InternalSolverError;
 				}
+				
+				// Pivot the entering symbol into the basis
 				rows.remove(entering);
 				row.solveForSymbols(leaving, entering);
 				substitute(entering, row);
@@ -409,6 +531,11 @@ class Solver {
 		}
 	}
 	
+	/* 
+	 * Compute the entering variable for a pivot operation.
+	 * This method will return first symbol in the objective function which is non-dummy and has a coefficient less than zero.
+	 * If no symbol meets the criteria, it means the objective function is at a minimum, and an invalid symbol is returned.
+	 */
 	private function getEnteringSymbol(objective:Row):Symbol {
 		Sure.sure(objective != null);
 		
@@ -421,6 +548,12 @@ class Solver {
 		return new Symbol();
 	}
 	
+	/* 
+	 * Compute the entering symbol for the dual optimize operation.
+	 * This method will return the symbol in the row which has a positive coefficient and yields the minimum ratio for its respective symbol in the objective function.
+	 * The provided row must be infeasible.
+	 * If no symbol is found which meets the criteria, an invalid symbol is returned.
+	 */
 	private function getDualEnteringSymbol(row:Row):Symbol {
 		Sure.sure(row != null);
 		
@@ -439,9 +572,14 @@ class Solver {
 				}
 			}
 		}
+		
 		return entering;
 	}
 	
+	/* 
+	 * Get the first Slack or Error symbol in the row.
+	 * If no such symbol is present, and Invalid symbol will be returned.
+	 */
 	private function anyPivotableSymbol(row:Row):Symbol {
 		Sure.sure(row != null);
 		
@@ -454,6 +592,12 @@ class Solver {
 		return new Symbol();
 	}
 	
+	/* 
+	 * Compute the row which holds the exit symbol for a pivot.
+	 * This method will return an iterator to the row in the row map which holds the exit symbol.
+	 * If no appropriate exit symbol is found, the end() iterator will be returned.
+	 * This indicates that the objective function is unbounded.
+	 */
 	private function getLeavingRow(entering:Symbol):Row {
 		Sure.sure(entering != null);
 		
@@ -477,6 +621,16 @@ class Solver {
 		return row;
 	}
 	
+	/* 
+	 * Compute the leaving row for a marker variable.
+	 * This method will return an iterator to the row in the row map which holds the given marker variable.
+	 * The row will be chosen according to the following precedence:
+	 * 1) The row with a restricted basic varible and a negative coefficient for the marker with the smallest ratio of -constant / coefficient.
+	 * 2) The row with a restricted basic variable and the smallest ratio of constant / coefficient.
+	 * 3) The last unrestricted row which contains the marker.
+	 * If the marker does not exist in any row, the row map end() iterator will be returned.
+	 * This indicates an internal solver error since the marker *should* exist somewhere in the tableau.
+	 */
 	private function getMarkerLeavingRow(marker:Symbol):Row {
 		Sure.sure(marker != null);
 		
@@ -519,6 +673,10 @@ class Solver {
 		return third;
 	}
 	
+
+	/*
+	 * Remove the effects of a constraint on the objective function.
+	 */
 	private function removeConstraintEffects(constraint:Constraint, tag:Tag):Void {
 		Sure.sure(constraint != null && tag != null);
 		
@@ -529,6 +687,9 @@ class Solver {
 		}
 	}
 	
+	/*
+	 * Remove the effects of an error marker on the objective function.
+	 */
 	private function removeMarkerEffects(marker:Symbol, strength:Float):Void {
 		Sure.sure(marker != null);
 		
@@ -540,6 +701,9 @@ class Solver {
 		}
 	}
 	
+	/*
+	 * Test whether a row is composed of all dummy variables.
+	 */
 	private function allDummies(row:Row):Bool {
 		Sure.sure(row != null);
 		
@@ -588,6 +752,7 @@ private class EditInfo {
 	}
 }
 
+// TODO: Haxe maps don't have key,value pair iteration, which makes it less 1:1 to the cpp implementation and probably way more inefficient - what do?
 typedef ConstraintMap = Map<Constraint, Tag>;
 typedef RowMap = Map<Symbol, Row>;
 typedef VarMap = Map<Variable, Symbol>;
