@@ -53,7 +53,6 @@ class Solver {
 		var tag:Tag = new Tag();
 		var row:Row = createRow(constraint, tag);
 		var subject:Symbol = chooseSubject(row, tag);
-		
 
 		// If chooseSubject could find a valid entering symbol, one last option is available if the entire row is composed of dummy variables.
 		// If the constant of the row is zero, then this represents redundant constraints and the new dummy marker can enter the basis.
@@ -80,7 +79,6 @@ class Solver {
 		
 		constraints.set(constraint, tag);
 		
-
 		// Optimizing after each constraint is added performs less aggregate work due to a smaller average system size.
 		// It also ensures the solver remains in a consistent state.
 		optimize(objective);
@@ -129,7 +127,9 @@ class Solver {
 				throw SolverError.InternalSolverError;
 			}
 			
-			rows.remove(tag.marker);
+			var removed = rows.remove(leaving);
+			Sure.sure(removed == true);
+			
 			row.solveForSymbols(leaving, tag.marker);
 			substitute(tag.marker, row);
 		}
@@ -607,6 +607,7 @@ class Solver {
 		for (key in rows.keys()) {
 			if (key.type != SymbolType.External) {
 				var candidateRow:Row = rows.get(key);
+				
 				var temp = candidateRow.coefficientFor(entering);
 				if (temp < 0.0) {
 					var temp_ratio = (-candidateRow.constant / temp);
@@ -643,10 +644,12 @@ class Solver {
 		
 		for (key in rows.keys()) {
 			var candidateRow:Row = rows.get(key);
+			
 			var c:Float = candidateRow.coefficientFor(marker);
 			if (c == 0.0) {
 				continue;
 			}
+			
 			if (key.type == SymbolType.External) {
 				third = candidateRow;
 			} else if (c < 0.0) {
@@ -663,16 +666,18 @@ class Solver {
 				}
 			}
 		}
+		
 		if (first != null) {
 			return first;
 		}
+		
 		if (second != null) {
 			return second;
 		}
+		
 		return third;
 	}
 	
-
 	/*
 	 * Remove the effects of a constraint on the objective function.
 	 */
@@ -711,6 +716,7 @@ class Solver {
 				return false;
 			}
 		}
+		
 		return true;
 	}
 }

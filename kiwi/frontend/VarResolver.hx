@@ -3,7 +3,7 @@ package kiwi.frontend;
 import kiwi.Expression;
 import kiwi.Variable;
 
-class Resolver implements IResolver {
+class VarResolver implements IResolver {
 	public var variables(default, null):Map<String, Variable>;
 	
 	public function new() {

@@ -2,6 +2,11 @@ package kiwi;
 
 typedef CellMap = Map<Symbol, Float>;
 
+private typedef SymbolCoefficientPair = {
+	var symbol:Symbol;
+	var coefficient:Float;
+}
+
 class Row {
 	public var cells(default, null):CellMap;
 	public var constant(default, null):Float;
@@ -60,9 +65,16 @@ class Row {
 		
 		constant += row.constant * coefficient;
 		
+		var pairs = new Array<SymbolCoefficientPair>();
+		
 		for (key in row.cells.keys()) {
 			var coeff:Float = row.cells.get(key) * coefficient;
-			insertSymbol(key, coeff);
+			var pair = { symbol: key, coefficient: coeff };
+			pairs.push(pair);
+		}
+		
+		for (pair in pairs) {
+			insertSymbol(pair.symbol, pair.coefficient);
 		}
 	}
 	
@@ -126,7 +138,6 @@ class Row {
 		solveForSymbol(rhs);
 	}
 	
-
 	/*
 	 * Get the coefficient for the given symbol.
 	 * If the symbol does not exist in the row, zero will be returned.
