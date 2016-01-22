@@ -11,12 +11,14 @@ import kiwi.Term;
 import kiwi.Variable;
 
 class TestStrengths extends TestCase {
-	public function test() {
+	public function testOrdering() {
 		assertTrue(Strength.weak < Strength.medium);
 		assertTrue(Strength.medium < Strength.strong);
 		assertTrue(Strength.strong < Strength.required);
 		assertTrue(Strength.clamp(Strength.required + 1) == Strength.required);
-		
+	}
+	
+	public function testCreation() {
 		var s1 = Strength.create(1, 2, 3);
 		var s2 = Strength.create(4, 5, 6);
 		
@@ -103,8 +105,6 @@ class TestSolver extends TestCase {
 		
 		try {
 			var solver = new Solver();
-			var resolver = new VarResolver();
-			
 			var vars = new Array<Variable>();
 			
 			trace("Creating variables");
@@ -147,5 +147,47 @@ class TestSolver extends TestCase {
 		}
 		
 		assertTrue(true);
+	}
+	
+	public function testConstraintStrengths() {
+		
+		try {
+			var solver = new Solver();
+			var resolver = new VarResolver();
+			
+			var x = resolver.resolveVariable("x");
+			
+			var weak = addConstraint(solver, ConstraintParser.parseConstraint("x == 100", "weak", resolver));
+			var medium = addConstraint(solver, ConstraintParser.parseConstraint("x == 200", "medium", resolver));
+			var strong = addConstraint(solver, ConstraintParser.parseConstraint("x == 300", "strong", resolver));
+			var required = addConstraint(solver, ConstraintParser.parseConstraint("x == 400", "required", resolver));
+			
+			solver.updateVariables();
+			assertTrue(x.value == 400);
+			solver.removeConstraint(required);
+			solver.updateVariables();
+			assertTrue(x.value == 300);
+			solver.removeConstraint(strong);
+			solver.updateVariables();
+			assertTrue(x.value == 200);
+			solver.removeConstraint(medium);
+			solver.updateVariables();
+			assertTrue(x.value == 100);
+			solver.removeConstraint(weak);
+			solver.updateVariables();
+			assertTrue(x.value == 0);
+			
+		} catch(msg:String) {
+			trace("Error occurred: " + msg);
+			assertTrue(false);
+		}
+		
+		assertTrue(true);
+		
+	}
+	
+	private function addConstraint(solver:Solver, constraint:Constraint):Constraint {
+		solver.addConstraint(constraint);
+		return constraint;
 	}
 }
