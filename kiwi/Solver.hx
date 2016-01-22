@@ -17,7 +17,7 @@ class Solver {
 		reset();
 	}
 	
-	/* 
+	/*
 	 * Reset the solver to the empty starting condition.
 	 * This method resets the internal solver state to the empty starting condition, as if no constraints or edit variables have been added.
 	 */
@@ -32,7 +32,8 @@ class Solver {
 		idTick = 1;
 	}
 	
-	/* Add a constraint to the solver.
+	/*
+	 * Add a constraint to the solver.
 	 * Throws
 	 * ------
 	 * DuplicateConstraint
@@ -84,7 +85,8 @@ class Solver {
 		optimize(objective);
 	}
 	
-	/* Remove a constraint from the solver.
+	/*
+	 * Remove a constraint from the solver.
 	 * Throws
 	 * ------
 	 * UnknownConstraint
@@ -139,7 +141,7 @@ class Solver {
 		optimize(objective);
 	}
 	
-	/* 
+	/*
 	 * Test whether a constraint has been added to the solver.
 	 */
 	public inline function hasConstraint(constraint:Constraint):Bool {
@@ -179,7 +181,8 @@ class Solver {
 		edits.set(variable, info);
 	}
 	
-	/* Remove an edit variable from the solver.
+	/*
+	 * Remove an edit variable from the solver.
 	 * Throws
 	 * ------
 	 * UnknownEditVariable
@@ -253,7 +256,7 @@ class Solver {
 		dualOptimize();
 	}
 	
-	/* 
+	/*
 	 * Update the values of the external solver variables.
 	 */
 	public function updateVariables():Void {
@@ -268,7 +271,7 @@ class Solver {
 		}
 	}
 	
-	/* 
+	/*
 	 * Get the symbol for the given variable.
 	 * If a symbol does not exist for the variable, one will be created.
 	 */
@@ -285,7 +288,7 @@ class Solver {
 		return symbol;
 	}
 	
-	/* 
+	/*
 	 * Create a new Row object for the given constraint.
 	 * The terms in the constraint will be converted to cells in the row.
 	 * Any term in the constraint with a coefficient of zero is ignored.
@@ -354,7 +357,7 @@ class Solver {
 		return row;
 	}
 	
-	/* 
+	/*
 	 * Choose the subject for solving for the row.
 	 * This method will choose the best subject for using as the solve target for the row.
 	 * An invalid symbol will be returned if there is no valid target.
@@ -387,7 +390,7 @@ class Solver {
 		return new Symbol();
 	}
 	
- 	/* 
+ 	/*
 	 * Add the row to the tableau using an artificial variable.
 	 * This will return false if the constraint cannot be satisfied.
  	 */
@@ -442,7 +445,7 @@ class Solver {
 		return success;
 	}
 	
-	/* 
+	/*
 	 * Substitute the parametric symbol with the given row.
 	 * This method will substitute all instances of the parametric symbol in the tableau and the objective function with the given row.	
 	 */
@@ -504,7 +507,8 @@ class Solver {
 		}
 	}
 	
-	/* Optimize the system using the dual of the simplex method.
+	/*
+	 * Optimize the system using the dual of the simplex method.
 	 * The current state of the system should be such that the objective function is optimal, but not feasible.
 	 * This method will perform an iteration of the dual simplex method to make the solution both optimal and feasible.
 	 * Throws
@@ -531,7 +535,7 @@ class Solver {
 		}
 	}
 	
-	/* 
+	/*
 	 * Compute the entering variable for a pivot operation.
 	 * This method will return first symbol in the objective function which is non-dummy and has a coefficient less than zero.
 	 * If no symbol meets the criteria, it means the objective function is at a minimum, and an invalid symbol is returned.
@@ -548,7 +552,7 @@ class Solver {
 		return new Symbol();
 	}
 	
-	/* 
+	/*
 	 * Compute the entering symbol for the dual optimize operation.
 	 * This method will return the symbol in the row which has a positive coefficient and yields the minimum ratio for its respective symbol in the objective function.
 	 * The provided row must be infeasible.
@@ -576,7 +580,7 @@ class Solver {
 		return entering;
 	}
 	
-	/* 
+	/*
 	 * Get the first Slack or Error symbol in the row.
 	 * If no such symbol is present, an Invalid symbol will be returned.
 	 */
@@ -592,7 +596,7 @@ class Solver {
 		return new Symbol();
 	}
 	
-	/* 
+	/*
 	 * Compute the row which holds the exit symbol for a pivot.
 	 * This method will return a reference to the row in the row map which holds the exit symbol.
 	 * If no appropriate exit symbol is found, null will be returned.
@@ -622,7 +626,7 @@ class Solver {
 		return row;
 	}
 	
-	/* 
+	/*
 	 * Compute the leaving row for a marker variable.
 	 * This method will return a reference to the row in the row map which holds the given marker variable.
 	 * The row will be chosen according to the following precedence:

@@ -13,10 +13,9 @@ class KiwiTestRunner {
 		runner.add(new TestStrengths());
 		runner.add(new TestExpressions());
 		runner.add(new TestConstraints());
-		runner.add(new TestPerformance());
+		runner.add(new TestSolver());
 		
 		runner.add(new TestInfixToPostfix());
-		runner.add(new TestExpressionTokenizer());
 		
 		runner.run();
 		

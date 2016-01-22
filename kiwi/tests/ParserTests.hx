@@ -26,9 +26,3 @@ class TestInfixToPostfix extends TestCase {
 		assertTrue(postfix[index++] == "+");
 	}
 }
-
-class TestExpressionTokenizer extends TestCase {
-	public function testTokenWithSpaces():Void {
-		assertTrue(true);
-	}
-}

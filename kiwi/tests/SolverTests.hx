@@ -50,8 +50,8 @@ class TestConstraints extends TestCase {
 	}
 }
 
-class TestPerformance extends TestCase {
-	public function testAddRemove() {
+class TestSolver extends TestCase {
+	public function testAddRemoveConstraints() {
 		
 		try {
 			var solver = new Solver();
@@ -59,7 +59,6 @@ class TestPerformance extends TestCase {
 			
 			var constraints = new Array<Constraint>();
 			
-			// Parse constraint strings
 			trace("Parsing constraint strings");
 			Timer.measure(function() {
 				solver.addConstraint(ConstraintParser.parseConstraint("Var_0 == 100", resolver));
@@ -71,7 +70,6 @@ class TestPerformance extends TestCase {
 				}
 			});
 			
-			// Add constraints
 			trace("Adding " + constraints.length + " constraints to solver");
 			Timer.measure(function() {
 				for (constraint in constraints) {
@@ -79,7 +77,13 @@ class TestPerformance extends TestCase {
 				}
 			});
 			
-			// Remove constraints
+			trace("Confirming that constraints were added to solver");
+			Timer.measure(function() {
+				for (constraint in constraints) {
+					assertTrue(solver.hasConstraint(constraint));
+				}
+			});
+			
 			trace("Removing constraints from solver");
 			Timer.measure(function() {
 				for (constraint in constraints) {
@@ -89,6 +93,57 @@ class TestPerformance extends TestCase {
 		
 		} catch(msg:String) {
 			trace("Error occurred: " + msg);
+			assertTrue(false);
+		}
+		
+		assertTrue(true);
+	}
+	
+	public function testAddRemoveEditVars() {
+		
+		try {
+			var solver = new Solver();
+			var resolver = new VarResolver();
+			
+			var vars = new Array<Variable>();
+			
+			trace("Creating variables");
+			Timer.measure(function() {
+				for (i in 0...1000) {
+					vars.push(new Variable("Var_" + Std.string(i)));
+				}
+			});
+			
+			trace("Adding " + vars.length + " edit variables to solver");
+			Timer.measure(function() {
+				for (i in 0...vars.length) {
+					solver.addEditVariable(vars[i], Strength.create(Math.random(), Math.random(), Math.random(), 1.0));
+				}
+			});
+			
+			trace("Confirming edit vars were added to solver");
+			Timer.measure(function() {
+				for (i in 0...vars.length) {
+					assertTrue(solver.hasEditVariable(vars[i]));
+				}
+			});
+			
+			trace("Suggesting values to solver");
+			Timer.measure(function() {
+				for (i in 0...vars.length) {
+					solver.suggestValue(vars[i], Math.random() * 10000);
+				}
+			});
+			
+			trace("Removing edit variables from solver");
+			Timer.measure(function() {
+				for (i in 0...vars.length) {
+					solver.removeEditVariable(vars[i]);
+				}
+			});
+		} catch(msg:String) {
+			trace("Error occurred: " + msg);
+			assertTrue(false);
 		}
 		
 		assertTrue(true);

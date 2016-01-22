@@ -8,7 +8,7 @@ import kiwi.Solver.VarMap;
 
 @:access(kiwi.Solver)
 class DebugHelper {
-	/* 
+	/*
 	 * Dump a representation of the solver internals to log output.
 	 */
 	public static inline function dumpSolverState(solver:Solver):Void {
