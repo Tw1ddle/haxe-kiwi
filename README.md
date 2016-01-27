@@ -1,6 +1,8 @@
 # haxe-kiwi
 
 haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software)) constraint solving algorithm.
+	
+Try the work-in-progress demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
 
 ## Features
 
@@ -24,7 +26,7 @@ Include the library through Project.xml:
 <include path="lib/haxe-kiwi/include.xml" />
 ```
 
-See the [demo repo](https://github.com/Tw1ddle/haxe-kiwi-demo) for some usage examples.
+See the [demo code](https://github.com/Tw1ddle/haxe-kiwi-demo) or run the [demo in the browser](http://tw1ddle.github.io/haxe-kiwi-demo/) for usage examples.
 
 ![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/layout_demo.png?raw=true "Demo")
 
