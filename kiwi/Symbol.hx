@@ -13,6 +13,8 @@ class Symbol {
 	public var id(default, null):Int;
 	
 	public inline function new(type:SymbolType = SymbolType.Invalid, id:Int = 0) {
+		Sure.sure(id >= 0);
+		
 		this.type = type;
 		this.id = id;
 	}

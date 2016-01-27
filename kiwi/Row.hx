@@ -1,6 +1,6 @@
 package kiwi;
 
-typedef CellMap = Map<Symbol, Float>;
+private typedef CellMap = Map<Symbol, Null<Float>>;
 
 private typedef SymbolCoefficientPair = {
 	var symbol:Symbol;
@@ -16,7 +16,7 @@ class Row {
 		this.constant = constant;
 	}
 	
-	// TODO is it really necessary to copy the whole map?
+	// TODO is it really necessary to copy the map?
 	public function deepCopy():Row {
 		var row = new Row();
 		row.constant = constant;
@@ -40,7 +40,7 @@ class Row {
 	 * If the symbol already exists in the row, the coefficient will be added to the existing coefficient.
 	 * If the resulting coefficient is zero, the symbol will be removed from the row.
 	 */
-	public function insertSymbol(symbol:Symbol, ?coefficient:Float = 1.0):Void {
+	public function insertSymbol(symbol:Symbol, coefficient:Float = 1.0):Void {
 		Sure.sure(symbol != null);
 		
 		var existingCoefficient:Null<Float> = cells.get(symbol);
@@ -60,7 +60,7 @@ class Row {
 	 * The constant and the cells of the other row will be multiplied by the coefficient and added to this row.
 	 * Any cell with a resulting coefficient of zero will be removed from the row.
 	 */
-	public function insertRow(row:Row, ?coefficient:Float = 1.0):Void {
+	public function insertRow(row:Row, coefficient:Float = 1.0):Void {
 		Sure.sure(row != null);
 		
 		constant += row.constant * coefficient;

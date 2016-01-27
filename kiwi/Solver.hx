@@ -229,22 +229,27 @@ class Solver {
 		var delta:Float = value - info.constant;
 		info.constant = value;
 		
+		// Check first if the positive error variable is basic.
 		var row:Row = rows.get(info.tag.marker);
 		if (row != null) {
 			if (row.add(-delta) < 0.0) {
 				infeasibleRows.push(info.tag.marker);
 			}
+			dualOptimize();
 			return;
 		}
 		
+		// Check next if the negative error variable is basic.
 		row = rows.get(info.tag.other);
 		if (row != null) {
 			if (row.add(delta) < 0.0) {
 				infeasibleRows.push(info.tag.other);
 			}
+			dualOptimize();
 			return;
 		}
 		
+		// Otherwise update each row where the error variables exist.
 		for (key in rows.keys()) {
 			var current_row:Row = rows.get(key);
 			var coefficient:Float = current_row.coefficientFor(info.tag.marker);
@@ -419,7 +424,8 @@ class Solver {
 				}
 			}
 			while (keysToRemove.length > 0) {
-				rows.remove(keysToRemove.pop());
+				var removed = rows.remove(keysToRemove.pop());
+				Sure.sure(removed == true);
 			}
 			
 			if (Lambda.count(row.cells) == 0) {
@@ -486,6 +492,8 @@ class Solver {
 			if (entry == null) {
 				throw SolverError.InternalSolverError;
 			}
+			
+			// Pivot the entering symbol into the basis
 			var leaving:Symbol = null;
 			for (key in rows.keys()) {
 				if (rows.get(key) == entry) {
@@ -493,12 +501,16 @@ class Solver {
 				}
 			}
 			
+			Sure.sure(leaving != null);
+			
 			var entryKey:Symbol = null;
 			for (key in rows.keys()) {
 				if (rows.get(key) == entry) {
 					entryKey = key;
 				}
 			}
+			
+			Sure.sure(entryKey != null);
 			
 			rows.remove(entryKey);
 			entry.solveForSymbols(leaving, entering);
@@ -762,6 +774,7 @@ private class EditInfo {
 }
 
 // TODO: Haxe maps don't have key,value pair iteration, which makes it less 1:1 to the cpp implementation and probably way more inefficient - what do?
+// TODO: Implement kiwi/Loki AssocVector using Haxe Arrays?
 typedef ConstraintMap = Map<Constraint, Tag>;
 typedef RowMap = Map<Symbol, Row>;
 typedef VarMap = Map<Variable, Symbol>;
