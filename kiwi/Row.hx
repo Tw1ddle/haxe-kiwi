@@ -130,9 +130,10 @@ class Row {
 	 * The rhs symbol will be removed from the row, the lhs added, and the result divided by the negative inverse of the rhs coefficient.
 	 * The lhs symbol must not exist in the row, and the rhs symbol must exist in the row.
 	 */ 
-	public inline function solveForSymbols(lhs:Symbol, rhs:Symbol):Void {
+	public function solveForSymbols(lhs:Symbol, rhs:Symbol):Void {
 		Sure.sure(lhs != null && rhs != null);
-		Sure.sure(cells.get(lhs) == null && cells.get(rhs) != null);
+		Sure.sure(cells.get(lhs) == null);
+		Sure.sure(cells.get(rhs) != null);
 		
 		insertSymbol(lhs, -1.0);
 		solveForSymbol(rhs);

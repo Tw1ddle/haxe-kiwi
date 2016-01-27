@@ -2,6 +2,8 @@ Copyright (c) 2016, Sam Twidale (http://samcodes.co.uk/).
 
 haxe-kiwi is a port of the Kiwi C++ UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of
 the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here: http://github.com/nucleic.
+	
+Parts of this port were also adapted from kiwi.js. Kiwi.js was written by Chris Colbert, lead of the Nucleic Development Team.
 
 The string parsing code for constraints is ported from kiwi-java by Alex Birkett, a Java port of the Kiwi solver.
 

@@ -1,11 +1,19 @@
 package kiwi;
 
+/*
+ * The linear constraint relational operators.
+ */
 @:enum abstract RelationalOperator(String) {
 	var LE = "<=";
 	var EQ = "==";
 	var GE = ">=";
 }
 
+/*
+ * A linear constraint equation.
+ * A constraint equation is composed of an expression, an operator, and a strength.
+ * The right hand side of the equation is implicitly zero.
+ */
 class Constraint {
 	public var expression(default, null):Expression;
 	public var operator(default, null):RelationalOperator;

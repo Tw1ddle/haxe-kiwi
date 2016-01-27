@@ -5,8 +5,9 @@ haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](h
 ## Features
 
 Supports:
-* Solving systems of linear equalities and inequalities.
-* JSON and string parsing for constraint creation.
+* Solving systems of linear constraint equations.
+* String parsing for constraint creation.
+* Edit variables.
 
 Doesn't support:
 * Stay constraints.
@@ -52,7 +53,6 @@ resolver.traceVariables(); // Trace all the variables captured by the resolver
 * More work on the test suite is needed.
 
 ## Acknowledgement
-* haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of
-the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here:
-http://github.com/nucleic.
+* haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here: http://github.com/nucleic.
+* Parts of this port were adapted from Kiwi.js, a JavaScript port of Kiwi, which is also written by the Nucleic Development Team.
 * String parsing code for constraints and some tests were ported from [kiwi-java](https://github.com/alexbirkett/kiwi-java), a Java port of Kiwi by Alex Birkett.

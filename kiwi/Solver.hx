@@ -3,6 +3,9 @@ package kiwi;
 import kiwi.Constraint.RelationalOperator;
 import kiwi.Symbol.SymbolType;
 
+/*
+ * The constraint solver.
+ */
 class Solver {
 	private var constraints:ConstraintMap;
 	private var rows:RowMap;
@@ -13,6 +16,9 @@ class Solver {
 	private var artificial:Row;
 	private var idTick:Int;
 	
+	/*
+	 * Construct a new constraint solver.
+	 */
 	public function new() {
 		reset();
 	}
@@ -29,7 +35,7 @@ class Solver {
 		infeasibleRows = new Array<Symbol>();
 		objective = new Row();
 		artificial = null;
-		idTick = 1;
+		idTick = 0;
 	}
 	
 	/*
@@ -142,7 +148,7 @@ class Solver {
 	}
 	
 	/*
-	 * Test whether a constraint has been added to the solver.
+	 * Test whether the solver contains the constraint.
 	 */
 	public inline function hasConstraint(constraint:Constraint):Bool {
 		Sure.sure(constraint != null);
@@ -202,7 +208,7 @@ class Solver {
 	}
 	
 	/* 
-	 * Test whether an edit variable has been added to the solver.
+	 * Test whether the solver contains the edit variable.
 	 */
 	public inline function hasEditVariable(variable:Variable):Bool {
 		Sure.sure(variable != null);
@@ -211,13 +217,13 @@ class Solver {
 	}
 	
 	/*
-	 * Suggest a value for the given edit variable.
+	 * Suggest the value of an edit variable.
 	 * This method should be used after an edit variable as been added to the solver in order to suggest the value for that variable.
 	 * Throws
 	 * ------
 	 * UnknownEditVariable
 	 *	The given edit variable has not been added to the solver.	
-	 */
+	 */	 
 	public function suggestValue(variable:Variable, value:Float):Void {
 		Sure.sure(variable != null);
 		
@@ -229,21 +235,23 @@ class Solver {
 		var delta:Float = value - info.constant;
 		info.constant = value;
 		
-		// Check first if the positive error variable is basic.
-		var row:Row = rows.get(info.tag.marker);
+		// Check if the positive error variable is basic.
+		var marker = info.tag.marker;
+		var row:Row = rows.get(marker);
 		if (row != null) {
 			if (row.add(-delta) < 0.0) {
-				infeasibleRows.push(info.tag.marker);
+				infeasibleRows.push(marker);
 			}
 			dualOptimize();
 			return;
 		}
 		
-		// Check next if the negative error variable is basic.
-		row = rows.get(info.tag.other);
+		// Check if the negative error variable is basic.
+		var other = info.tag.other;
+		var row = rows.get(other);
 		if (row != null) {
 			if (row.add(delta) < 0.0) {
-				infeasibleRows.push(info.tag.other);
+				infeasibleRows.push(other);
 			}
 			dualOptimize();
 			return;
@@ -251,13 +259,12 @@ class Solver {
 		
 		// Otherwise update each row where the error variables exist.
 		for (key in rows.keys()) {
-			var current_row:Row = rows.get(key);
-			var coefficient:Float = current_row.coefficientFor(info.tag.marker);
-			if (coefficient != 0.0 && current_row.add(delta * coefficient) < 0.0 && key.type != SymbolType.External) {
+			var currentRow:Row = rows.get(key);
+			var coefficient:Float = currentRow.coefficientFor(marker);
+			if (coefficient != 0.0 && currentRow.add(delta * coefficient) < 0.0 && key.type != SymbolType.External) {
 				infeasibleRows.push(key);
 			}
 		}
-		
 		dualOptimize();
 	}
 	
@@ -287,7 +294,7 @@ class Solver {
 		if (symbol != null) {
 			return symbol;
 		}
-			
+		
 		symbol = new Symbol(SymbolType.External, idTick++);
 		vars.set(variable, symbol);
 		return symbol;
@@ -321,19 +328,20 @@ class Solver {
 				}
 			}
 		}
-		
+				
 		// Add the necessary slack, error, and dummy variables.
+		var strength = constraint.strength;
 		switch(constraint.operator) {
 			case RelationalOperator.LE, RelationalOperator.GE: {
 				var coefficient:Float = constraint.operator == RelationalOperator.LE ? 1.0 : -1.0;
 				var slack = new Symbol(SymbolType.Slack, idTick++);
 				tag.marker = slack;
 				row.insertSymbol(slack, coefficient);
-				if (constraint.strength < Strength.required) {
+				if (strength < Strength.required) {
 					var error = new Symbol(SymbolType.Error, idTick++);
 					tag.other = error;
 					row.insertSymbol(error, -coefficient);
-					objective.insertSymbol(error, constraint.strength);
+					objective.insertSymbol(error, strength);
 				}
 			}
 			case RelationalOperator.EQ: {
@@ -344,8 +352,8 @@ class Solver {
 					tag.other = errorMinus;
 					row.insertSymbol(errorPlus, -1.0);
 					row.insertSymbol(errorMinus, 1.0);
-					objective.insertSymbol(errorPlus, constraint.strength);
-					objective.insertSymbol(errorMinus, constraint.strength);
+					objective.insertSymbol(errorPlus, strength);
+					objective.insertSymbol(errorMinus, strength);
 				} else {
 					var dummy = new Symbol(SymbolType.Dummy, idTick++);
 					tag.marker = dummy;
@@ -386,7 +394,7 @@ class Solver {
 			}
 		}
 		
-		if (tag.other != null && (tag.other.type == SymbolType.Slack || tag.other.type == SymbolType.Error)) {
+		if (tag.other.type == SymbolType.Slack || tag.other.type == SymbolType.Error) {
 			if (row.coefficientFor(tag.other) < 0.0) {
 				return tag.other;
 			}
@@ -415,6 +423,8 @@ class Solver {
 		
 		// If the artificial variable is basic, pivot the row so that it becomes basic.
 		// If the row is constant, exit early.
+		
+		// TODO compare to kiwi.js
 		var row:Row = rows.get(art);
 		if (row != null) {
 			var keysToRemove = new Array<Symbol>();
@@ -434,6 +444,7 @@ class Solver {
 			
 			var entering:Symbol = anyPivotableSymbol(row);
 			if (entering.type == SymbolType.Invalid) {
+				Sure.sure(false);
 				return false; // Unsatisfiable (will this ever happen?)
 			}
 			row.solveForSymbols(art, entering);
@@ -459,9 +470,9 @@ class Solver {
 		Sure.sure(symbol != null && row != null);
 		
 		for (key in rows.keys()) {
-			var current_row:Row = rows.get(key);
-			current_row.substitute(symbol, row);
-			if (key.type != SymbolType.External && current_row.constant < 0.0) {
+			var currentRow:Row = rows.get(key);
+			currentRow.substitute(symbol, row);
+			if (key.type != SymbolType.External && currentRow.constant < 0.0) {
 				infeasibleRows.push(key);
 			}
 		}
@@ -483,6 +494,8 @@ class Solver {
 	private function optimize(objective:Row):Void {
 		Sure.sure(objective != null);
 		
+		// TODO compare to kiwi.js
+		
 		while (true) {
 			var entering:Symbol = getEnteringSymbol(objective);
 			if (entering.type == SymbolType.Invalid) {
@@ -493,7 +506,7 @@ class Solver {
 				throw SolverError.InternalSolverError;
 			}
 			
-			// Pivot the entering symbol into the basis
+			// Pivot the entering symbol into the basis.
 			var leaving:Symbol = null;
 			for (key in rows.keys()) {
 				if (rows.get(key) == entry) {
@@ -538,8 +551,10 @@ class Solver {
 					throw SolverError.InternalSolverError;
 				}
 				
-				// Pivot the entering symbol into the basis
-				rows.remove(entering);
+				// Pivot the entering symbol into the basis.
+				var removed = rows.remove(leaving);
+				Sure.sure(removed);
+				
 				row.solveForSymbols(leaving, entering);
 				substitute(entering, row);
 				rows.set(entering, row);
@@ -570,22 +585,27 @@ class Solver {
 	 * The provided row must be infeasible.
 	 * If no symbol is found which meets the criteria, an invalid symbol is returned.
 	 */
-	private function getDualEnteringSymbol(row:Row):Symbol {
+	private inline function getDualEnteringSymbol(row:Row):Symbol {
 		Sure.sure(row != null);
 		
 		var entering = new Symbol();
 		var ratio:Float = Util.floatMax;
 		for (key in row.cells.keys()) {
-			if (key.type != SymbolType.Dummy) {
-				var current_cell:Float = row.cells.get(key);
-				if (current_cell > 0.0) {
-					var coefficient:Float = objective.coefficientFor(key);
-					var r:Float = coefficient / current_cell;
-					if (r < ratio) {
-						ratio = r;
-						entering = key;
-					}
-				}
+			if (key.type == SymbolType.Dummy) {
+				continue;
+			}
+			
+			var currentCell:Float = row.cells.get(key);
+			
+			if (currentCell <= 0.0) {
+				continue;
+			}
+			
+			var coefficient:Float = objective.coefficientFor(key);
+			var r:Float = coefficient / currentCell;
+			if (r < ratio) {
+				ratio = r;
+				entering = key;
 			}
 		}
 		
@@ -614,24 +634,28 @@ class Solver {
 	 * If no appropriate exit symbol is found, null will be returned.
 	 * This indicates that the objective function is unbounded.
 	 */
-	private function getLeavingRow(entering:Symbol):Row {
+	private inline function getLeavingRow(entering:Symbol):Row {
 		Sure.sure(entering != null);
 		
 		var ratio:Float = Util.floatMax;
 		var row:Row = null;
 		
 		for (key in rows.keys()) {
-			if (key.type != SymbolType.External) {
-				var candidateRow:Row = rows.get(key);
-				
-				var temp = candidateRow.coefficientFor(entering);
-				if (temp < 0.0) {
-					var temp_ratio = (-candidateRow.constant / temp);
-					if (temp_ratio < ratio) {
-						ratio = temp_ratio;
-						row = candidateRow;
-					}
-				}
+			if (key.type == SymbolType.External) {
+				continue;
+			}
+			
+			var candidateRow:Row = rows.get(key);
+			var temp = candidateRow.coefficientFor(entering);
+			
+			if (temp >= 0.0) {
+				continue;
+			}
+			
+			var tempRatio = -candidateRow.constant / temp;
+			if (tempRatio < ratio) {
+				ratio = tempRatio;
+				row = candidateRow;
 			}
 		}
 		
@@ -648,7 +672,7 @@ class Solver {
 	 * If the marker does not exist in any row, null will be returned.
 	 * This indicates an internal solver error since the marker should exist somewhere in the tableau.
 	 */
-	private function getMarkerLeavingRow(marker:Symbol):Row {
+	private inline function getMarkerLeavingRow(marker:Symbol):Row {
 		Sure.sure(marker != null);
 		
 		var r1:Float = Util.floatMax;
@@ -697,7 +721,7 @@ class Solver {
 	/*
 	 * Remove the effects of a constraint on the objective function.
 	 */
-	private function removeConstraintEffects(constraint:Constraint, tag:Tag):Void {
+	private inline function removeConstraintEffects(constraint:Constraint, tag:Tag):Void {
 		Sure.sure(constraint != null && tag != null);
 		
 		if (tag.marker.type == SymbolType.Error) {

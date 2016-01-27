@@ -1,5 +1,8 @@
 package kiwi;
 
+/*
+ * An expression of terms and a constant.
+ */
 class Expression {
 	public var terms(default, null):Array<Term>;
 	public var constant(default, null):Float;

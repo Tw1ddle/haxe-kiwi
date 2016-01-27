@@ -1,5 +1,8 @@
 package kiwi;
 
+/*
+ * The primary user constraint variable.
+ */
 class Variable {
 	public var name:String;
 	public var value:Float;
