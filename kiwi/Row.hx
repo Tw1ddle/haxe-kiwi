@@ -2,11 +2,9 @@ package kiwi;
 
 private typedef CellMap = Map<Symbol, Null<Float>>;
 
-private typedef SymbolCoefficientPair = {
-	var symbol:Symbol;
-	var coefficient:Float;
-}
-
+/*
+ * An internal tableau row class used by the constraint solver.
+ */
 class Row {
 	public var cells(default, null):CellMap;
 	public var constant(default, null):Float;
@@ -16,8 +14,10 @@ class Row {
 		this.constant = constant;
 	}
 	
-	// TODO is it really necessary to copy the map?
-	public function deepCopy():Row {
+	/*
+	 * Create a copy of the row.
+	 */
+	public function copy():Row {
 		var row = new Row();
 		row.constant = constant;
 		for (key in cells.keys()) {
@@ -62,19 +62,13 @@ class Row {
 	 */
 	public function insertRow(row:Row, coefficient:Float = 1.0):Void {
 		Sure.sure(row != null);
+		Sure.sure(row != this);
 		
 		constant += row.constant * coefficient;
 		
-		var pairs = new Array<SymbolCoefficientPair>();
-		
 		for (key in row.cells.keys()) {
 			var coeff:Float = row.cells.get(key) * coefficient;
-			var pair = { symbol: key, coefficient: coeff };
-			pairs.push(pair);
-		}
-		
-		for (pair in pairs) {
-			insertSymbol(pair.symbol, pair.coefficient);
+			insertSymbol(key, coeff);
 		}
 	}
 	
@@ -91,7 +85,7 @@ class Row {
 	public function reverseSign():Void {
 		constant = -constant;
 		
-		var newCells = new CellMap(); // TODO is new'ing another map necessary?
+		var newCells = new CellMap();
 		for (key in cells.keys()) {
 			var value:Float = -cells.get(key);
 			newCells.set(key, value);
@@ -116,7 +110,7 @@ class Row {
 		cells.remove(symbol);
 		constant *= coefficient;
 		
-		var newCells = new CellMap(); // TODO is new'ing another map necessary?
+		var newCells = new CellMap();
 		for (key in cells.keys()) {
 			var value:Float = cells.get(key) * coefficient;
 			newCells.set(key, value);
@@ -164,9 +158,19 @@ class Row {
 		
 		var cell:Null<Float> = cells.get(symbol);
 		if (cell != null) {
-			var coefficient:Float = cell;
 			cells.remove(symbol);
-			insertRow(row, coefficient);
+			insertRow(row, cell);
 		}
+	}
+	
+	/*
+	 * Returns true if the row is a constant value.
+	 */
+	public inline function isConstant():Bool {
+		var size:Int = 0;
+		for (cell in cells) {
+			size++;
+		}
+		return size == 0;
 	}
 }

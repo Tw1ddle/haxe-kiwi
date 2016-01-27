@@ -113,33 +113,20 @@ class Solver {
 		removeConstraintEffects(constraint, tag);
 		
 		// If the marker is basic, simply drop the row. Otherwise, pivot the marker into the basis and then drop the row.
-		var row:Row = rows.get(tag.marker);
-		if (row != null) {
-			rows.remove(tag.marker);
+		var marker = tag.marker;
+		var row = rows.get(marker);
+		
+		if(row != null) {
+			rows.remove(marker);
 		} else {
-			row = getMarkerLeavingRow(tag.marker);
-			
-			if (row == null) {
+			var leaving = getMarkerLeavingSymbol(marker);
+			if (leaving.type == SymbolType.Invalid) {
 				throw SolverError.InternalSolverError;
 			}
-			
-			var leaving:Symbol = null;
-			
-			for (key in rows.keys()) {
-				if (rows.get(key) == row) {
-					leaving = key;
-				}
-			}
-			
-			if (leaving == null) {
-				throw SolverError.InternalSolverError;
-			}
-			
-			var removed = rows.remove(leaving);
-			Sure.sure(removed == true);
-			
-			row.solveForSymbols(leaving, tag.marker);
-			substitute(tag.marker, row);
+			row = rows.get(leaving);
+			rows.remove(leaving);
+			row.solveForSymbols(leaving, marker);
+			substitute(marker, row);
 		}
 		
 		// Optimizing after each constraint is removed ensures that the solver remains consistent.
@@ -412,8 +399,8 @@ class Solver {
 		
 		// Create and add the artificial variable to the tableau.
 		var art:Symbol = new Symbol(SymbolType.Slack, idTick++);
-		rows.set(art, row.deepCopy());
-		artificial = row.deepCopy();
+		rows.set(art, row.copy());
+		artificial = row.copy();
 		
 		// Optimize the artificial objective.
 		// This is successful only if the artificial objective is optimized to zero.
@@ -421,32 +408,21 @@ class Solver {
 		var success:Bool = Util.nearZero(artificial.constant);
 		artificial = null;
 		
-		// If the artificial variable is basic, pivot the row so that it becomes basic.
+		// If the artificial variable is basic, pivot the row so that it becomes non-basic.
 		// If the row is constant, exit early.
-		
-		// TODO compare to kiwi.js
 		var row:Row = rows.get(art);
+		rows.remove(art);
 		if (row != null) {
-			var keysToRemove = new Array<Symbol>();
-			for (key in rows.keys()) {
-				if (rows.get(key) == row) {
-					keysToRemove.push(key);
-				}
-			}
-			while (keysToRemove.length > 0) {
-				var removed = rows.remove(keysToRemove.pop());
-				Sure.sure(removed == true);
-			}
-			
-			if (Lambda.count(row.cells) == 0) {
+			if (row.isConstant()) {
 				return success;
 			}
 			
-			var entering:Symbol = anyPivotableSymbol(row);
+			var entering = anyPivotableSymbol(row);
+			
 			if (entering.type == SymbolType.Invalid) {
-				Sure.sure(false);
-				return false; // Unsatisfiable (will this ever happen?)
+				return false;
 			}
+			
 			row.solveForSymbols(art, entering);
 			substitute(entering, row);
 			rows.set(entering, row);
@@ -494,41 +470,22 @@ class Solver {
 	private function optimize(objective:Row):Void {
 		Sure.sure(objective != null);
 		
-		// TODO compare to kiwi.js
-		
 		while (true) {
 			var entering:Symbol = getEnteringSymbol(objective);
 			if (entering.type == SymbolType.Invalid) {
 				return;
 			}
-			var entry:Row = getLeavingRow(entering);
-			if (entry == null) {
+			var leaving:Symbol = getLeavingSymbol(entering);
+			if (leaving.type == SymbolType.Invalid) {
 				throw SolverError.InternalSolverError;
 			}
 			
 			// Pivot the entering symbol into the basis.
-			var leaving:Symbol = null;
-			for (key in rows.keys()) {
-				if (rows.get(key) == entry) {
-					leaving = key;
-				}
-			}
-			
-			Sure.sure(leaving != null);
-			
-			var entryKey:Symbol = null;
-			for (key in rows.keys()) {
-				if (rows.get(key) == entry) {
-					entryKey = key;
-				}
-			}
-			
-			Sure.sure(entryKey != null);
-			
-			rows.remove(entryKey);
-			entry.solveForSymbols(leaving, entering);
-			substitute(entering, entry);
-			rows.set(entering, entry);
+			var row = rows.get(leaving);
+			rows.remove(leaving);
+			row.solveForSymbols(leaving, entering);
+			rows.set(entering, row);
+			substitute(entering, row);
 		}
 	}
 	
@@ -613,74 +570,53 @@ class Solver {
 	}
 	
 	/*
-	 * Get the first Slack or Error symbol in the row.
-	 * If no such symbol is present, an Invalid symbol will be returned.
-	 */
-	private function anyPivotableSymbol(row:Row):Symbol {
-		Sure.sure(row != null);
-		
-		for (symbol in row.cells.keys()) {
-			if (symbol.type == SymbolType.Slack || symbol.type == SymbolType.Error) {
-				return symbol;
-			}
-		}
-		
-		return new Symbol();
-	}
-	
-	/*
-	 * Compute the row which holds the exit symbol for a pivot.
-	 * This method will return a reference to the row in the row map which holds the exit symbol.
-	 * If no appropriate exit symbol is found, null will be returned.
+	 * Compute the symbol for pivot exit row.
+	 * This method will return the symbol for the exit row in the row map.
+	 * If no appropriate exit symbol is found, an invalid symbol will be returned.
 	 * This indicates that the objective function is unbounded.
 	 */
-	private inline function getLeavingRow(entering:Symbol):Row {
+	private inline function getLeavingSymbol(entering:Symbol):Symbol {
 		Sure.sure(entering != null);
 		
 		var ratio:Float = Util.floatMax;
-		var row:Row = null;
+		var symbol = new Symbol();
 		
 		for (key in rows.keys()) {
-			if (key.type == SymbolType.External) {
-				continue;
-			}
-			
-			var candidateRow:Row = rows.get(key);
-			var temp = candidateRow.coefficientFor(entering);
-			
-			if (temp >= 0.0) {
-				continue;
-			}
-			
-			var tempRatio = -candidateRow.constant / temp;
-			if (tempRatio < ratio) {
-				ratio = tempRatio;
-				row = candidateRow;
+			if (key.type != SymbolType.External) {
+				var row = rows.get(key);
+				var temp = row.coefficientFor(entering);
+				if (temp < 0.0) {
+					var tempRatio = -row.constant / temp;
+					if (tempRatio < ratio) {
+						ratio = tempRatio;
+						symbol = key;
+					}
+				}
 			}
 		}
 		
-		return row;
+		return symbol;
 	}
 	
 	/*
-	 * Compute the leaving row for a marker variable.
-	 * This method will return a reference to the row in the row map which holds the given marker variable.
+	 * Compute the leaving symbol for a marker variable.
+	 * This method will return a symbol corresponding to a basic row which holds the given marker variable.
 	 * The row will be chosen according to the following precedence:
 	 * 1) The row with a restricted basic varible and a negative coefficient for the marker with the smallest ratio of -constant / coefficient.
 	 * 2) The row with a restricted basic variable and the smallest ratio of constant / coefficient.
 	 * 3) The last unrestricted row which contains the marker.
-	 * If the marker does not exist in any row, null will be returned.
+	 * If the marker does not exist in any row, an invalid symbol will be returned.
 	 * This indicates an internal solver error since the marker should exist somewhere in the tableau.
 	 */
-	private inline function getMarkerLeavingRow(marker:Symbol):Row {
+	private inline function getMarkerLeavingSymbol(marker:Symbol):Symbol {
 		Sure.sure(marker != null);
 		
 		var r1:Float = Util.floatMax;
 		var r2:Float = Util.floatMax;
 		
-		var first:Row = null;
-		var second:Row = null;
-		var third:Row = null;
+		var first:Symbol = new Symbol();
+		var second:Symbol = new Symbol();
+		var third:Symbol = new Symbol();
 		
 		for (key in rows.keys()) {
 			var candidateRow:Row = rows.get(key);
@@ -691,27 +627,27 @@ class Solver {
 			}
 			
 			if (key.type == SymbolType.External) {
-				third = candidateRow;
+				third = key;
 			} else if (c < 0.0) {
 				var r:Float = -candidateRow.constant / c;
 				if (r < r1) {
 					r1 = r;
-					first = candidateRow;
+					first = key;
 				}
 			} else {
 				var r:Float = candidateRow.constant / c;
 				if (r < r2) {
 					r2 = r;
-					second = candidateRow;
+					second = key;
 				}
 			}
 		}
 		
-		if (first != null) {
+		if (first.type != SymbolType.Invalid) {
 			return first;
 		}
 		
-		if (second != null) {
+		if (second.type != SymbolType.Invalid) {
 			return second;
 		}
 		
@@ -743,6 +679,22 @@ class Solver {
 		} else {
 			objective.insertSymbol(marker, -strength);
 		}
+	}
+	
+	/*
+	 * Get the first Slack or Error symbol in the row.
+	 * If no such symbol is present, an Invalid symbol will be returned.
+	 */
+	private function anyPivotableSymbol(row:Row):Symbol {
+		Sure.sure(row != null);
+		
+		for (symbol in row.cells.keys()) {
+			if (symbol.type == SymbolType.Slack || symbol.type == SymbolType.Error) {
+				return symbol;
+			}
+		}
+		
+		return new Symbol();
 	}
 	
 	/*
