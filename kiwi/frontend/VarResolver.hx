@@ -3,6 +3,9 @@ package kiwi.frontend;
 import kiwi.Expression;
 import kiwi.Variable;
 
+/*
+ * Maps variable names to corresponding solver variables
+ */
 class VarResolver implements IResolver {
 	public var variables(default, null):Map<String, Variable>;
 	

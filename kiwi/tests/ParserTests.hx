@@ -3,8 +3,10 @@ package kiwi.tests;
 import haxe.unit.TestCase;
 import kiwi.frontend.ConstraintParser;
 
-// Adapted from Alex Birkett's kiwi-java port: https://github.com/alexbirkett/kiwi-java
-// Runtime parser tests for strings -> Kiwi constraints
+/*
+ * Runtime parser tests for strings -> Kiwi constraints.
+ * Adapted from Alex Birkett's kiwi-java port: https://github.com/alexbirkett/kiwi-java
+ */
 @:access(kiwi.frontend.ConstraintParser)
 class TestInfixToPostfix extends TestCase {
 	public function testInfixToPostfixBasic():Void {

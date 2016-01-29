@@ -10,12 +10,19 @@ import kiwi.Symbolics.VariableSymbolics;
 import kiwi.Term;
 import kiwi.Variable;
 
-// Adapted from Alex Birkett's kiwi-java port: https://github.com/alexbirkett/kiwi-java
-// Runtime parser for strings -> Kiwi constraints
+/*
+ * Runtime parser for strings -> Kiwi constraints.
+ * Adapted from Alex Birkett's kiwi-java port: https://github.com/alexbirkett/kiwi-java
+ */
 class ConstraintParser {
 	private static inline var ops:String = "-+/*^";
 	private static var pattern = new EReg("\\s*(.*?)\\s*(<=|==|>=)\\s*(.*?$)", "i");
 	
+	/*
+	 * Parses an equation and returns a constraint based on the string.
+	 * Constraints are written in the form: a [==|<=|>=] b [/*] c [+-] d 
+	 * Throws if the string could not be parsed.
+	 */
 	public static function parseConstraint(constraintString:String, ?strengthString:String = "required", resolver:IResolver):Constraint {
 		var matched:Bool = pattern.match(constraintString);
 		

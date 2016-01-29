@@ -3,6 +3,7 @@ package kiwi;
 import kiwi.Constraint.RelationalOperator;
 
 // TODO: investigate whether abstracts can be used to implement this, a bit like this:
+// TODO: using the constraint parser within a macro could also work pretty well.
 /*
 abstract AExpression(Expression) to Expression from Expression {
 	public function new(?terms:Array<Term>, constant:Float = 0.0) {

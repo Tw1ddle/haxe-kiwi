@@ -2,7 +2,7 @@
 
 haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software)) constraint solving algorithm.
 	
-Try the work-in-progress demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
+Try the demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
 
 ## Features
 
@@ -33,6 +33,8 @@ See the [demo code](https://github.com/Tw1ddle/haxe-kiwi-demo) or run the [demo 
 ```haxe
 // Basic usage
 var solver = new Solver();
+
+// Constraints are written in the form: a [==|<=|>=] b [*/] c [+-] d
 var problem:String = '{"inequalities":["x == 20", "x == y + 10", "z == y + 30", "q == z + x", "foo == z + x", "bar == foo + x", "baz == foo * 10", "boz == x / 10 + y / 10 + x * 5"]}';
 var structure:{inequalities:Array<String>} = Json.parse(problem);
 
