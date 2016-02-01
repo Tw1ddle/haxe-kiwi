@@ -10,12 +10,8 @@ package kiwi;
 
 class Symbol {
 	public var type(default, null):SymbolType;
-	public var id(default, null):Int;
 	
-	public inline function new(type:SymbolType = SymbolType.Invalid, id:Int = 0) {
-		Sure.sure(id >= 0);
-		
+	public inline function new(type:SymbolType = SymbolType.Invalid) {
 		this.type = type;
-		this.id = id;
 	}
 }

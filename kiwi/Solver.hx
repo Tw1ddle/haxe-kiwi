@@ -1,7 +1,7 @@
 package kiwi;
 
 import kiwi.Constraint.RelationalOperator;
-import kiwi.Symbol.SymbolType;
+import kiwi.Symbol;
 
 /*
  * The constraint solver.
@@ -14,7 +14,7 @@ class Solver {
 	private var infeasibleRows:Array<Symbol>;
 	private var objective:Row;
 	private var artificial:Row;
-	private var idTick:Int;
+	private var sharedInvalidSymbol:Symbol; // Shared invalid to avoid new'ing invalid symbols wherever it is unnecessary
 	
 	/*
 	 * Construct a new constraint solver.
@@ -27,7 +27,7 @@ class Solver {
 	 * Reset the solver to the empty starting condition.
 	 * This method resets the internal solver state to the empty starting condition, as if no constraints or edit variables have been added.
 	 */
-	public inline function reset():Void {
+	public inline function reset():Void {		
 		constraints = new ConstraintMap();
 		rows = new RowMap();
 		vars = new VarMap();
@@ -35,7 +35,7 @@ class Solver {
 		infeasibleRows = new Array<Symbol>();
 		objective = new Row();
 		artificial = null;
-		idTick = 0;
+		sharedInvalidSymbol = new Symbol();
 	}
 	
 	/*
@@ -282,7 +282,7 @@ class Solver {
 			return symbol;
 		}
 		
-		symbol = new Symbol(SymbolType.External, idTick++);
+		symbol = new Symbol(SymbolType.External);
 		vars.set(variable, symbol);
 		return symbol;
 	}
@@ -321,11 +321,11 @@ class Solver {
 		switch(constraint.operator) {
 			case RelationalOperator.LE, RelationalOperator.GE: {
 				var coefficient:Float = constraint.operator == RelationalOperator.LE ? 1.0 : -1.0;
-				var slack = new Symbol(SymbolType.Slack, idTick++);
+				var slack = new Symbol(SymbolType.Slack);
 				tag.marker = slack;
 				row.insertSymbol(slack, coefficient);
 				if (strength < Strength.required) {
-					var error = new Symbol(SymbolType.Error, idTick++);
+					var error = new Symbol(SymbolType.Error);
 					tag.other = error;
 					row.insertSymbol(error, -coefficient);
 					objective.insertSymbol(error, strength);
@@ -333,8 +333,8 @@ class Solver {
 			}
 			case RelationalOperator.EQ: {
 				if (constraint.strength < Strength.required) {
-					var errorPlus = new Symbol(SymbolType.Error, idTick++);
-					var errorMinus = new Symbol(SymbolType.Error, idTick++);
+					var errorPlus = new Symbol(SymbolType.Error);
+					var errorMinus = new Symbol(SymbolType.Error);
 					tag.marker = errorPlus;
 					tag.other = errorMinus;
 					row.insertSymbol(errorPlus, -1.0);
@@ -342,7 +342,7 @@ class Solver {
 					objective.insertSymbol(errorPlus, strength);
 					objective.insertSymbol(errorMinus, strength);
 				} else {
-					var dummy = new Symbol(SymbolType.Dummy, idTick++);
+					var dummy = new Symbol(SymbolType.Dummy);
 					tag.marker = dummy;
 					row.insertSymbol(dummy);
 				}
@@ -387,7 +387,7 @@ class Solver {
 			}
 		}
 		
-		return new Symbol();
+		return sharedInvalidSymbol;
 	}
 	
  	/*
@@ -398,7 +398,7 @@ class Solver {
 		Sure.sure(row != null);
 		
 		// Create and add the artificial variable to the tableau.
-		var art:Symbol = new Symbol(SymbolType.Slack, idTick++);
+		var art:Symbol = new Symbol(SymbolType.Slack);
 		rows.set(art, row.copy());
 		artificial = row.copy();
 		
@@ -533,7 +533,7 @@ class Solver {
 			}
 		}
 		
-		return new Symbol();
+		return sharedInvalidSymbol;
 	}
 	
 	/*
@@ -545,7 +545,7 @@ class Solver {
 	private inline function getDualEnteringSymbol(row:Row):Symbol {
 		Sure.sure(row != null);
 		
-		var entering = new Symbol();
+		var entering = sharedInvalidSymbol;
 		var ratio:Float = Util.floatMax;
 		for (key in row.cells.keys()) {
 			if (key.type == SymbolType.Dummy) {
@@ -579,7 +579,7 @@ class Solver {
 		Sure.sure(entering != null);
 		
 		var ratio:Float = Util.floatMax;
-		var symbol = new Symbol();
+		var symbol = sharedInvalidSymbol;
 		
 		for (key in rows.keys()) {
 			if (key.type != SymbolType.External) {
@@ -749,8 +749,8 @@ private class EditInfo {
 	}
 }
 
-// TODO: Haxe maps don't have key,value pair iteration, which makes it less 1:1 to the cpp implementation and probably way more inefficient - what do?
-// TODO: Implement kiwi/Loki AssocVector using Haxe Arrays?
+// TODO: Haxe maps don't have key,value pair iteration, which makes it less 1:1 to the cpp implementation and probably way more inefficient - implement kiwi/Loki AssocVector using Haxe Arrays?
+// TODO: Also, what are the performance implications of doing pooling on symbols etc?
 typedef ConstraintMap = Map<Constraint, Tag>;
 typedef RowMap = Map<Symbol, Row>;
 typedef VarMap = Map<Variable, Symbol>;

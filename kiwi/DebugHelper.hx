@@ -114,7 +114,7 @@ class DebugHelper {
 			return "null symbol";
 		}
 		
-		return (Std.string(symbol.type) + symbol.id);
+		return Std.string(symbol.type);
 	}
 	
 	public static inline function dumpConstraint(constraint:Constraint):String {
