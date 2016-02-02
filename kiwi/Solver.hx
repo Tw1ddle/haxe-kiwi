@@ -750,7 +750,7 @@ private class EditInfo {
 }
 
 // TODO: Haxe maps don't have key,value pair iteration, which makes it less 1:1 to the cpp implementation and probably way more inefficient - implement kiwi/Loki AssocVector using Haxe Arrays?
-// TODO: Also, what are the performance implications of doing pooling on symbols etc?
+// TODO: Also, what are the performance implications of doing pooling on symbols etc? Also review Chris's advice, can symbols be removed altogether: https://github.com/alexbirkett/kiwi-java/issues/8
 typedef ConstraintMap = Map<Constraint, Tag>;
 typedef RowMap = Map<Symbol, Row>;
 typedef VarMap = Map<Variable, Symbol>;

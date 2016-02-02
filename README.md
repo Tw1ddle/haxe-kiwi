@@ -2,8 +2,10 @@
 
 haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software)) constraint solving algorithm.
 	
-Try the demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
-
+Visit [Overconstrained](http://overconstrained.io/) and join the [Slack group](http://overconstrained.io/#slack) to find out more or to get involved.
+	
+Also try the demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
+	
 ## Features
 
 Supports:
