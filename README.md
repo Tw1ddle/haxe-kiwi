@@ -1,11 +1,11 @@
-# haxe-kiwi
+[![Project logo](https://github.com/Tw1ddle/haxe-kiwi/blob/master/screenshots/logo.png?raw=true "Haxe Kiwi - an implementation of the Cassowary constraint solving algorithm")](http://tw1ddle.github.io/haxe-kiwi-demo/)
 
-haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software)) constraint solving algorithm.
-	
-Visit [Overconstrained](http://overconstrained.io/) and join the [Slack group](http://overconstrained.io/#slack) to find out more or to get involved.
-	
-Also try the demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
-	
+[![Travis Unit Test Build Status](https://img.shields.io/travis/Tw1ddle/haxe-kiwi-unit-tests.svg?style=flat-square)](https://travis-ci.org/Tw1ddle/haxe-kiwi-unit-tests)
+
+haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software)) constraint solving algorithm. Run the demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
+
+Visit [Overconstrained](http://overconstrained.io/) and join the [Slack group](http://overconstrained.io/#slack) to find out more about constraint solvers or get involved in development.
+
 ## Features
 
 Supports:
@@ -28,7 +28,7 @@ Include the library through Project.xml:
 <include path="lib/haxe-kiwi/include.xml" />
 ```
 
-See the [demo code](https://github.com/Tw1ddle/haxe-kiwi-demo) or run the [demo in the browser](http://tw1ddle.github.io/haxe-kiwi-demo/) for usage examples.
+See the [demo code](https://github.com/Tw1ddle/haxe-kiwi-demo), the [unit tests](https://github.com/Tw1ddle/haxe-kiwi-unit-tests), or run the [demo in the browser](http://tw1ddle.github.io/haxe-kiwi-demo/) for usage examples.
 
 ![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/layout_demo.png?raw=true "Demo")
 
@@ -55,8 +55,8 @@ resolver.traceVariables(); // Trace all the variables captured by the resolver
 ```
 
 ## Notes
+* There is a unit test repository for the library [here](https://github.com/Tw1ddle/haxe-kiwi-unit-tests).
 * All Haxe targets are supported.
-* More work on the test suite is needed.
 
 ## Acknowledgement
 * haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here: http://github.com/nucleic.
