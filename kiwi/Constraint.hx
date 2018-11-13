@@ -16,18 +16,18 @@ package kiwi;
  */
 class Constraint {
 	public var expression(default, null):Expression;
-	public var operator(default, null):RelationalOperator;
+	public var op(default, null):RelationalOperator;
 	public var strength(default, null):Float;
 	
-	public inline function new(expression:Expression, operator:RelationalOperator, ?strength:Null<Float>) {
-		Sure.sure(expression != null && operator != null);
+	public inline function new(expression:Expression, op:RelationalOperator, ?strength:Null<Float>) {
+		Sure.sure(expression != null && op != null);
 		
 		if (strength == null) {
 			strength = Strength.required;
 		}
 		
 		this.expression = reduce(expression);
-		this.operator = operator;
+		this.op = op;
 		this.strength = Strength.clamp(strength);
 	}
 	

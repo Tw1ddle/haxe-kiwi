@@ -133,7 +133,7 @@ class DebugHelper {
 		}
 		dump += Std.string(constraint.expression.constant);
 		
-		switch(constraint.operator) {
+		switch(constraint.op) {
 			case RelationalOperator.LE:
 				dump += " <= 0 ";
 			case RelationalOperator.GE:

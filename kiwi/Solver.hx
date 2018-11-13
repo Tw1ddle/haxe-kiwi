@@ -318,9 +318,9 @@ class Solver {
 				
 		// Add the necessary slack, error, and dummy variables.
 		var strength = constraint.strength;
-		switch(constraint.operator) {
+		switch(constraint.op) {
 			case RelationalOperator.LE, RelationalOperator.GE: {
-				var coefficient:Float = constraint.operator == RelationalOperator.LE ? 1.0 : -1.0;
+				var coefficient:Float = constraint.op == RelationalOperator.LE ? 1.0 : -1.0;
 				var slack = new Symbol(SymbolType.Slack);
 				tag.marker = slack;
 				row.insertSymbol(slack, coefficient);
