@@ -28,7 +28,7 @@ Include the library through Project.xml:
 
 See the [demo code](https://github.com/Tw1ddle/haxe-kiwi-demo), the [unit tests](https://github.com/Tw1ddle/haxe-kiwi-unit-tests), or run the [demo in the browser](https://tw1ddle.github.io/haxe-kiwi-demo/) for usage examples.
 
-![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/layout_demo.png?raw=true "Demo")
+![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/layout_animation.gif?raw=true "Demo")
 
 ```haxe
 // Basic usage
