@@ -3,7 +3,7 @@ package kiwi;
 /*
  * The linear constraint relational operators.
  */
-@:enum abstract RelationalOperator(String) {
+@:enum abstract RelationalOperator(String) from String to String {	
 	var LE = "<=";
 	var EQ = "==";
 	var GE = ">=";
