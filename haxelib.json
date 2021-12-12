@@ -1,6 +1,6 @@
 {
 	"name": "haxe-kiwi",
-	"url" : "http://samcodes.co.uk/code/",
+	"url" : "https://samcodes.co.uk/code/",
 	"license": "Modified BSD",
 	"tags": ["cross", "haxe", "openfl", "utility", "ui"],
 	"description": "Haxe port of Kiwi, an implementation of the Cassowary constraint solving algorithm.",

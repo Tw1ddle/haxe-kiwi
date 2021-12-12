@@ -1,10 +1,6 @@
-[![Project logo](https://github.com/Tw1ddle/haxe-kiwi/blob/master/screenshots/logo.png?raw=true "Haxe Kiwi - an implementation of the Cassowary constraint solving algorithm")](http://tw1ddle.github.io/haxe-kiwi-demo/)
+[![Project logo](https://github.com/Tw1ddle/haxe-kiwi/blob/master/screenshots/logo.png?raw=true "Haxe Kiwi - an implementation of the Cassowary constraint solving algorithm")](https://tw1ddle.github.io/haxe-kiwi-demo/)
 
-[![Travis Unit Test Build Status](https://img.shields.io/travis/Tw1ddle/haxe-kiwi-unit-tests.svg?style=flat-square)](https://travis-ci.org/Tw1ddle/haxe-kiwi-unit-tests)
-
-haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software)) constraint solving algorithm. Run the demo [in your browser](http://tw1ddle.github.io/haxe-kiwi-demo/).
-
-Visit [Overconstrained](http://overconstrained.io/) and join the [Slack group](http://overconstrained.io/#slack) to find out more about constraint solvers or get involved in development.
+haxe-kiwi is a port of [Kiwi](https://github.com/nucleic/kiwi) and [Kiwi Java](https://github.com/alexbirkett/kiwi-java), implementations of the [Cassowary](https://en.wikipedia.org/wiki/Cassowary_(software)) constraint solving algorithm. Run the demo [in your browser](https://tw1ddle.github.io/haxe-kiwi-demo/).
 
 ## Features
 
@@ -19,16 +15,18 @@ Doesn't support:
 ## Usage
 
 haxe-kiwi depends on assertion library Sure, install that first:
+
 ```xml
 haxelib install sure
 ```
 
 Include the library through Project.xml:
+
 ```xml
 <include path="lib/haxe-kiwi/include.xml" />
 ```
 
-See the [demo code](https://github.com/Tw1ddle/haxe-kiwi-demo), the [unit tests](https://github.com/Tw1ddle/haxe-kiwi-unit-tests), or run the [demo in the browser](http://tw1ddle.github.io/haxe-kiwi-demo/) for usage examples.
+See the [demo code](https://github.com/Tw1ddle/haxe-kiwi-demo), the [unit tests](https://github.com/Tw1ddle/haxe-kiwi-unit-tests), or run the [demo in the browser](https://tw1ddle.github.io/haxe-kiwi-demo/) for usage examples.
 
 ![Screenshot of demo app](https://github.com/Tw1ddle/haxe-kiwi-demo/blob/master/screenshots/layout_demo.png?raw=true "Demo")
 
@@ -42,8 +40,8 @@ var structure:{inequalities:Array<String>} = Json.parse(problem);
 
 var resolver:VarResolver = new VarResolver(); // Simple map wrapper that caches variables so that duplicates aren't added to the solver
 for (inequality in structure.inequalities) {
-	var constraint = ConstraintParser.parseConstraint(inequality, resolver, "required");
-	solver.addConstraint(constraint);
+    var constraint = ConstraintParser.parseConstraint(inequality, resolver, "required");
+    solver.addConstraint(constraint);
 }
 solver.updateVariables(); // Update the values of the external solver variables
 
@@ -59,6 +57,6 @@ resolver.traceVariables(); // Trace all the variables captured by the resolver
 * All Haxe targets are supported.
 
 ## Acknowledgement
-* haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here: http://github.com/nucleic.
+* haxe-kiwi is a port of the Kiwi UI constraint solver v0.1.3. Kiwi was written by Chris Colbert, lead of the Nucleic Development Team. Their core team that coordinates development on GitHub can be found here: https://github.com/nucleic.
 * Parts of this port were adapted from Kiwi.js, a JavaScript port of Kiwi, which is also written by the Nucleic Development Team.
 * String parsing code for constraints and some tests were ported from [kiwi-java](https://github.com/alexbirkett/kiwi-java), a Java port of Kiwi by Alex Birkett.
